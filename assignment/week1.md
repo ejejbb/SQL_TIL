@@ -41,15 +41,16 @@
  3)테이블: 상품의 세부 정보가 저장. 행과 열로 이루어진 데이터들이 저장됨.   
 
 # 2-1. 데이터 활용 Overview
-* 데이터를 활용하는 과정
+* 데이터를 활용하는 과정   
 <img width="391" alt="w1_sql_캡처1" src="https://github.com/user-attachments/assets/d14b653e-5680-44cc-983a-deec03cf4ac3">
 
 
 # 2-2. 저장된 데이터 확인하기
 * 데이터 확인하기   
-1) ERD
+1) ERD   
 <img width="446" alt="w1_sql_캡처2" src="https://github.com/user-attachments/assets/2cdb6c3f-1acf-4808-92ee-ba5a2a6f8862">
-2) 모든 데이터베이스 직접 보면서 탐색
+
+2) 모든 데이터베이스 직접 보면서 탐색   
 <img width="318" alt="w1_sql_캡처3" src="https://github.com/user-attachments/assets/69d7d9ea-aaf4-4456-9b57-210c37342465">
 
 
@@ -61,11 +62,12 @@
 * 포켓몬으로 이해하는 SQL
   - 포켓몬 데이터 확인하기   
   : 포켓몬/트레이너/트레이너가 잡은 포켓몬/트레이너가 도전한 유저 배틀/트레이너가 도전한 체육관 배틀/NPC/상점/상점 별로 판매하는 제품
-  - 포켓몬 데이터로 보는 이커머스 데이터
+  - 포켓몬 데이터로 보는 이커머스 데이터   
     <img width="247" alt="w1_sql_캡처4" src="https://github.com/user-attachments/assets/bf76942c-c212-4513-8640-7d61bbba5d8e">
-  - 포켓몬 데이터 ERD
+
+  - 포켓몬 데이터 ERD   
     <img width="544" alt="w1_sql_캡처5" src="https://github.com/user-attachments/assets/d2202a45-994c-4106-bdf5-de438d5d80a0">
 
 
-**활동 인증**
+**활동 인증**   
 <img width="361" alt="w1_sql_캡처6" src="https://github.com/user-attachments/assets/f85a91d8-2aa8-4e31-b2e1-0824ab4782a2">

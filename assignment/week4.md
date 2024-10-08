@@ -109,3 +109,7 @@ Microsecond: 1/1,000,000sec
 
 <img width="687" alt="시간비교" src="https://github.com/user-attachments/assets/76c35a73-371b-4b73-bc13-51d82fbc0c28">
 
+
+#### 수강 인증
+
+<img width="345" alt="수강인증" src="https://github.com/user-attachments/assets/f93bf5c5-e90f-427f-82f9-17e6f5153ab4">

@@ -53,25 +53,25 @@ SELECT
 <img width="778" alt="문자열 함수" src="https://github.com/user-attachments/assets/58db0a63-79a4-4d6c-bacc-d2d513a893c5">
 
 ### 문자열 함수 실습하기
-1) CONCAT
+#### 1. CONCAT
 
 <img width="409" alt="문자열1" src="https://github.com/user-attachments/assets/e3597c33-0cc7-48e6-b32d-24bad5892ca1">
 
-2) SPLIT
+#### 2. SPLIT
 
 <img width="261" alt="문자열2" src="https://github.com/user-attachments/assets/bc5909ce-e3e1-44b3-8426-9812483d3da4">
 
 => 결과가 배열(array) 타입으로 나옴.
 
-3) REPLACE
+#### 3. REPLACE
 
 <img width="283" alt="문자열3" src="https://github.com/user-attachments/assets/5cdeebca-2322-4812-b9d0-a5bec3f1af35">
 
-4) TRIM
+#### 4. TRIM
 
 <img width="244" alt="문자열4" src="https://github.com/user-attachments/assets/8edc744c-26bc-4615-bd04-3459c0cec49a">
 
-5) UPPER
+#### 5. UPPER
 
 <img width="228" alt="문자열5" src="https://github.com/user-attachments/assets/1680a45e-64a4-4907-ab23-2ed611b81d9d">
 

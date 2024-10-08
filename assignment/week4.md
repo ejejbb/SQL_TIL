@@ -17,11 +17,11 @@
 ### 주요 문법 오류
 - SELECT와 FROM 사이가 비어 있으면 안됨.
 - COUNT 함수에는 1개의 인자만 들어갈 수 있음.
-- SELECT list expression references column type1 a which is neither grouped nor aggregated
+- SELECT list expression references column type1 a which is neither grouped nor aggregated   
   : 이 오류는 GROUP BY에 적절한 컬럼을 명시하지 않았을 경우 발생하는 오류임.
 - 하나의 쿼리에는 SELECT가 1개만 있어야 한다. 2개 이상의 SELECT문을 사용하고 싶다면, 쿼리가 끝나는 부분에 ;을 붙여서 두 개 모두 실행하거나, 실행할 부분만 드래그 앤 드랍 해서 실행하기
 - LIMIT은 맨 아래에 입력되어야 함.
-- Expected ")" but got end of script at [8:11]
+- Expected ")" but got end of script at [8:11]   
   : 괄호 열기는 했지만 닫기를 입력하지 않은 경우
 
 

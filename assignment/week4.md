@@ -44,7 +44,7 @@
 ```
 #예시: 숫자 1을 문자 1로 변경
 SELECT
- CAST(1ASSTRING)
+ CAST(1 AS STRING)
 ```
 
 

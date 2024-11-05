@@ -50,7 +50,7 @@
 ```
 
 #### 데이터 검증을 위한 쿼리
-```
+```js
 SELECT
   COUNT(*)
 FROM(
@@ -66,7 +66,7 @@ WHERE
 ```
 
 #### 문제 풀이
-```
+```js
 SELECT
   COUNT(DISTINCT id) AS cnt
 FROM basic.trainer_pokemon
@@ -93,7 +93,7 @@ battle_datetime과 DATETIME(battle_timestamp, "Asia/Seoul")가 같은지 확인!
 ```
 
 #### 데이터 검증을 위한 쿼리
-```
+```js
 SELECT
   -- id,
   -- battle_datetime,
@@ -105,7 +105,7 @@ FROM `basic.battle`
 ```
 
 #### 문제 풀이
-```
+```js
 SELECT
   COUNT(DISTINCT id) AS battle_cnt
 FROM basic.battle
@@ -118,7 +118,7 @@ WHERE
 ```
 
 #### 추가 문제_시간대별로 몇 건이 있는가?
-```
+```js
 SELECT
   hour,
   COUNT(DISTINCT id) AS battle_cnt
@@ -147,7 +147,7 @@ ORDER BY
 #### 사용할 테이블: trainer_pokemon
 #### Join KEY: X
 #### 데이터 특징: catch_date는 UTC 기준의 데이터. 한국 기준으로 하려면 catch_datetime을 사용해야 함.
-```
+```js
 SELECT
   trainer_id,
   FORMAT_DATE('%d/%m/%Y', min_catch_date) AS new_min_catch_date
@@ -173,7 +173,7 @@ ORDER BY
 #### Join KEY: X
 #### 데이터 특징: battle_date가 정상적임
 
-```
+```js
 SELECT
   day_of_week,
   COUNT(DISTINCT id) AS battle_cnt
@@ -198,7 +198,7 @@ ORDER BY
 #### Join KEY: X
 #### 데이터 특징: catch_date는 UTC 기반으로 만들어진 일자. catch_datetime을 사용해야 한다
 
-```
+```js
 SELECT
   *,
   DATETIME_DIFF(max_catch_datetime, min_catch_datetime, DAY) AS diff
@@ -237,7 +237,7 @@ ORDER BY
 
 #### 조건문 1: CASE WHEN
 여러 조건이 있을 경우 유용
-```
+```js
 # CASE WHEN 사용방법
 
 문법
@@ -257,7 +257,7 @@ SELECT
 - Join KEY: X
 - 데이터 특징: type이 type1, type2로 나뉘어서 두가지 타입을 모두 고려해야 한다!
 
-```
+```js
 SELECT
   new_type1,
   COUNT(DISTINCT id) AS pokemon_cnt
@@ -281,7 +281,7 @@ GROUP BY
 - 조건1, 조건2에 둘 다 해당하면 앞선 순서를 따름
 - 문자열 함수(특정 단어 추출)에서 이슈가 자주 발생 
 
-```
+```js
 SELECT
   eng_name,
   attack,
@@ -295,7 +295,7 @@ FROM basic_pokemon
 
 #### 조건문 2: IF
 단일 조건일 경우 유용
-```
+```js
 # IF 사용방법
 
 문법
@@ -315,7 +315,7 @@ IF(조건문, True일 때의 값, False일 때의 값) AS 새로운_컬럼_이�
 #### Join KEY: X
 #### 데이터 특징: MIN speed : 5 / Max speed : 140
 
-```
+```js
 SELECT
   id,
   kor_name,
@@ -333,7 +333,7 @@ FROM basic.pokemon
 #### Join KEY: X
 #### 데이터 특징: 타입이 여러가지
 
-```
+```js
 SELECT
   id,
   kor_name,
@@ -356,7 +356,7 @@ FROM basic.pokemon
 #### Join KEY: X
 #### 데이터 특징: total 컬럼이 정수(INTEGER)
 
-```
+```js
 SELECT
   id,
   kor_name,
@@ -378,7 +378,7 @@ FROM basic.pokemon
 #### Join KEY: X
 #### 데이터 특징: X
 
-```
+```js
 SELECT
   id,
   name,
@@ -403,7 +403,7 @@ FROM basic.trainer
 #### Join KEY: X
 #### 데이터 특징: catch_date는 UTC 기준, catch_datetime은 TIMESTAMP
 
-```
+```js
 SELECT
   id,
   trainer_id,
@@ -422,7 +422,7 @@ FROM basic.trainer_pokemon
 #### Join KEY: X
 #### 데이터 특징: X
 
-```
+```js
 SELECT
   id,
   winner_id,

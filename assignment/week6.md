@@ -107,7 +107,7 @@ ON table_a.key = table_c.key
 
 # *5-6. JOIN 연습문제 1~2번*
 
-### 1) 트레이너가 보유한 포켓몬들은 얼마나 있는지 알 수 있는 쿼리를 작성해주세요
+### Q1. 트레이너가 보유한 포켓몬들은 얼마나 있는지 알 수 있는 쿼리를 작성해주세요
 - 쿼리를 작성하는 목표, 확인할 지표: 포켓몬들이(이름 명시) 얼마나 있는지 알고 싶다! 포켓몬의 수.
 - 쿼리 계산 방법: trainer_pokemon(status가 Active, Training) + pokemon JOIN => 그 후에 GROUP BY 집계(COUNT)
 - 데이터의 기간: X
@@ -139,7 +139,7 @@ ORDER BY
   pokemon_cnt DESC
 ```
 
-### 2) 각 트레이너가 가진 포켓몬 중에서 'Grass' 타입의 포켓몬 수를 계산해주세요 (단, 편의를 위해 type1 기준으로 계산해주세요)
+### Q2. 각 트레이너가 가진 포켓몬 중에서 'Grass' 타입의 포켓몬 수를 계산해주세요 (단, 편의를 위해 type1 기준으로 계산해주세요)
 - 쿼리를 작성하는 목표, 확인할 지표: 트레이너가 보유한 포켓몬 중에서 Grass 타입의 포켓몬 수를 알고 싶다!
 - 쿼리 계산 방법: 트레이너가 보유한 포켓몬 조건 설정 => Grass 타입으로 WHERE 조건 걸어서 COUNT
 - 데이터의 기간: X
@@ -174,7 +174,7 @@ ORDER BY
 
 # *5-6. JOIN 연습문제 3~5번*
 
-### 3) 트레이너의 고향(hometown)과 포켓몬을 포획한 위치(location)를 비교하여, 자신의 고향에서 포켓몬을 포획한 트레이너의 수를 계산해주세요.
+### Q3. 트레이너의 고향(hometown)과 포켓몬을 포획한 위치(location)를 비교하여, 자신의 고향에서 포켓몬을 포획한 트레이너의 수를 계산해주세요.
 - 쿼리를 작성하는 목표, 확인할 지표: 트레이너 고향과 포켓몬의 포획 위치가 같은 트레이너의 수를 계산하기!
 - 쿼리 계산 방법: trainer(hometown), trainer_pokemon(location) JOIN => hometown = lcoation => 트레이너의 수 COUNT
 - 데이터의 기간: X
@@ -193,7 +193,7 @@ WHERE
   AND t.hometown = tp.location
 ```
 
-### 4) Master 등급인 트레이너들은 어떤 타입(type1)의 포켓몬을 제일 많이 보유하고 있을까요?
+### Q4. Master 등급인 트레이너들은 어떤 타입(type1)의 포켓몬을 제일 많이 보유하고 있을까요?
 - 쿼리를 작성하는 목표, 확인할 지표: Master 등급의 트레이너들이 가장 많이 보유하고 있는 타입
 - 쿼리 계산 방법: trainer + pokemon + trainer_pokemon => Master 조건 설정(WHERE) => type1 GROUP BY + COUNT
 - 데이터의 기간: X
@@ -228,7 +228,7 @@ ORDER BY
 LIMIT 1
 ```
 
-### 5) Incheon 출신 트레이너들은 1세대, 2세대 포켓몬을 각각 얼마나 보유하고 있나요?
+### Q5. Incheon 출신 트레이너들은 1세대, 2세대 포켓몬을 각각 얼마나 보유하고 있나요?
 - 쿼리를 작성하는 목표, 확인할 지표: Incheon 출신 트레이너들이 보유하고 있는 포켓몬 중에 세대 구분을 하고 싶다(1, 2)
 - 쿼리 계산 방법: trainer + trainer_pokemon + pokemon => 세대(generation)로 GROUP BY COUNT
 - 데이터의 기간: X

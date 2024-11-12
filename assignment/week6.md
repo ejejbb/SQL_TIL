@@ -174,7 +174,7 @@ ORDER BY
 
 # *5-6. JOIN 연습문제 3~5번*
 
-### 3) 트레니언의 고향(hometown)과 포켓몬을 포획한 위치(location)를 비교하여, 자신의 고향에서 포켓몬을 포획한 트레이너의 수를 계산해주세요.
+### 3) 트레이너의 고향(hometown)과 포켓몬을 포획한 위치(location)를 비교하여, 자신의 고향에서 포켓몬을 포획한 트레이너의 수를 계산해주세요.
 - 쿼리를 작성하는 목표, 확인할 지표: 트레이너 고향과 포켓몬의 포획 위치가 같은 트레이너의 수를 계산하기!
 - 쿼리 계산 방법: trainer(hometown), trainer_pokemon(location) JOIN => hometown = lcoation => 트레이너의 수 COUNT
 - 데이터의 기간: X
@@ -280,5 +280,6 @@ ON t1.key = t2.key
 - FULL
 - CROSS
 
-## 과제 인증샷
-![스크린샷](../image/screenshot59.png)
+## 수강 인증샷
+<img width="336" alt="수강인증" src="https://github.com/user-attachments/assets/575be000-ab51-42ed-99d3-592e16a0824c">
+

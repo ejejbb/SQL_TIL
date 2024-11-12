@@ -114,7 +114,7 @@ ON table_a.key = table_c.key
 - 사용할 테이블: trainer_pokemon, pokemon
 - Join KEY: trainer_pokemon.pokemon_id = pokemon.id
 - 데이터 특징: 
-    - 보유했다의 정의는 status가 Active, Training인 경우를 읨
+    - 보유했다의 정의는 status가 Active, Training인 경우를 의미
     - Released는 방출했다는 것을 의미
 
 ```js

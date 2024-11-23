@@ -27,20 +27,20 @@
   (단, 회사의 기준이 CamelCase면 사용. 일관성이 중요)
 
 ### 3) 명시적 vs 암시적인 이름
-- Alias로 별칭을 지을 때는 명시적인 이름을 적용
-- AS a, AS b 등 컬럼의 의미를 한번 더 생각하게 하는 이름이 아닌 명시적인 것을 사용
-- JOIN할 때 테이블의 이름도 명시적으로 할 수 있다면 명시적으로 진행하기
+- 컬럼, 테이블명 모두 가능하면 `명시적`으로 사용하는 것이 좋음
 - AS를 생략해서 별칭을 설정할 수도 있는데, AS를 쓰는 것도 명시적인 표현
 
 ### 4) 왼쪽 정렬
-- 기본적으로 왼쪽 정렬을 기준으로 작성
+- 기본적으로 왼쪽 정렬을 기준으로 작성   
+**왼쪽 정렬 예시**
 ```js
 SELECT
   col
 FROM table
 WHERE 1=1
-
-Not Good
+```
+**Not Good**
+```
 SELECT col
 FROM table
 WHERE 1=1
@@ -48,6 +48,7 @@ WHERE 1=1
 
 ### 5) 예약어나 컬럼은 한 줄에 하나씩 권장
 - 컬럼은 바로 주석처리할 수 있는 장점이 있기에 한 줄에 하나씩 작성
+**한 줄에 하나씩**
 ```js
 SELECT
   col1,
@@ -55,8 +56,9 @@ SELECT
   col3
 FROM table
 WHERE
-
-Not Good
+```
+**Not Good**
+```
 SELECT col, col2, col3
 FROM table
 ```
@@ -64,28 +66,14 @@ FROM table
 ### 6) 쉼표는 컬럼 바로 뒤에
 - 의견이 갈리는 부분. 쉼표 앞 vs 뒤
 - BigQuery는 마지막 쉼표를 무시해서 뒤에 작성해도 무방
-```js
-SELECT
-  col1,
-  col2,
-  col3, #BigQuery는 정상 동작
-FROM table
-
-vs
-
-SELECT
-  col1
-  , col2
-  , col3
-FROM table
-```
+- 회사의 방침 따르기
 
 
-## 2. 가독성을 챙기기 위한 WITH 문 & 파티션
+## 6-3. 가독성을 챙기기 위한 WITH 문 & 파티션
 
 ### WITH 구문
 SQL 쿼리를 작성하다 생기는 일 => 점점 복잡해짐(가독성 하락)
-- 만약 아래 쿼리가 다른 곳에서도 필요하면 복사 붙여넣
+- 만약 아래 쿼리가 다른 곳에서도 필요하면 복사 붙여넣기 -> 반복 많아짐 -> 복잡 -> WITH문 사용!
 ```js
 SELECT
   col, col2
@@ -97,7 +85,7 @@ FROM (
 )
 ```
 
-WITH 문을 사용해 쿼리를 정의해서 재사용 가능
+-> WITH 문을 사용해 쿼리를 정의해서 재사용 가능
 ```js
 WITH temp_table AS (
   SELECT
@@ -120,7 +108,7 @@ FROM temp_table
 WITH name_a AS (
   SELECT
     col
-  FROM Table
+  FROM Table   # Table로 저장할 수도, VIEW(쿼리 덩어리)로 저장할 수도 있음 
 ), name_b AS (
   SELECT
     col2
@@ -130,14 +118,12 @@ WITH name_a AS (
 SELECT
   col
 FROM name_a
+     name_b
 ```
 
 ### PARTITION
 - Table엔 Partition이란 것이 존재할 수 있음
-
-- 창고에 수많은 물건이 매일 많이 들어옴
-- 특정 시기에 들어온 물건을 찾고 싶다면?
-- 애초에 일자별로 정리하면 됨
+- 빅쿼리의 탐색비용 = 돈 -> partition에 잘 저장하기
 
 ### PARTITION을 사용하면 좋은 점
 - 1) 쿼리 성능 향상
@@ -147,30 +133,30 @@ FROM name_a
 - 3) 비용
     - 파티션에 해당되는 데이터만 스캔해서 비용을 줄일 수 있음
     - (BigQuery는 쿼리 용량에 비례해서 과금)
+- 4) 실습: 오른쪽 상단에 실행 시 이 쿼리가 용량을 얼마나 처리하는지 뜸
 
-### PARTITION Table에서 쿼리하기
-- WHERE 절에 파티션 컬럼에 대해 조건을 설정해서 사용
-- 아래 쿼리는 "2023-12-19"부터 하루 전날의 데이터를 추출하는 쿼리
-- (저장된 데이터는 더 과거 데이터라 이 쿼리를 돌릴 때 결과는 나오지 않음)
-![스크린샷](../image/screenshot60.png)
-
-
-## 3. 데이터 결과 검증 정의
+## 6-4. 데이터 결과 검증 정의
+- 갑작스럽게 데이터를 추출해야하는 상황에 빠르게 데이터를 추출 후 공유하다보니 오류 발생하기도 함
+- 오류를 막기 위해 데이터 추출 시 데이터 결과 검증을 어떻게 할 수 있을까?에 대한 고민
 
 ### 데이터 결과 검증(Data Result Validation)의 정의
-- SQL 쿼리 후 얻은 결과가 예상과 일치하는지 확인하는 과정
+- SQL 쿼리 후 얻은 **결과가 예상과 일치하는지** 확인하는 과정
 - 목적: 분석 결과의 정확성, 신뢰성 확보
-- 방법은 심플
+- 방법:
     - 내가 기대하는 예상 결과를 정의
     - 쿼리 작성
     - 두 개가 일치하는지 비교
-- 제일 중요한 부분
+- 중요한 부분:
     - 문제를 잘 정의하고, 미리 작성해보기
     - 도메인 특수성(이런 규칙 등) 잘 파악하기
     - SQL 쿼리 템플릿과 맥락이 거의 유사
 
 ### 데이터 결과를 검증하는 흐름
-![스크린샷](../image/screenshot61.png)
+- 문제 정의 확인: 구체적인 문제 정의. 요청사항도 구체적으로 확인
+- Input/Output : 데이터의 Input과 원하는 형태의 Output 작성하기
+- 쿼리 작성: 가독성 챙기기
+- 결과 비교: 예상과 실제 쿼리 결과의 차이가 있는지 확인하기
+
 
 ### 데이터 결과 검증할 때 자주 활용하는 SQL 쿼리
 대표적으로 활용하는 SQL 문법
@@ -184,7 +170,7 @@ FROM name_a
 => SELECT COUNT(DISTINCT col), COUNT(col) 두 컬럼을 보고 개수를 비교
 ```
 
-#### 제가 데이터 결과 검증을 할 때 활용하는 방식
+#### 카일스쿨이 데이터 결과 검증을 할 때 활용하는 방식
 1) 특정 user_id로 필터링을 걸어서 확인
 - 1명의 데이터 확인(예: WHERE user_id = 402)
 - 결과를 예상할 때 Raw 데이터에서 하나씩 눈으로 세고 적어둠(예상 결과)
@@ -194,21 +180,19 @@ FROM name_a
 
 2) 샘플 데이터 생성하기
 - WITH 문을 사용해 예시 데이터를 생성한 후, 결과를 예상하고 쿼리 작성
+- 문법에 익숙하지 않을 때 사용하면 좋음
 - 복잡한 데이터에서 하기 전에, 쿼리 자체가 올바른지 확인할 때 주로 사용
-![스크린샷](../image/screenshot62.png)
 
 
-## 데이터 결과 검증 예시
+## 6-5. 데이터 결과 검증 예시
 
 ### 데이터 결과 검증 예시 문제
-여러분은 포켓몬 트레이너들의 배틀 성적을 분석하는 작업을 맡게 되었습니다.<br>
-각 트레이너가 진행한 배틀의 승리 비율을 계산해야 하며, 배틀에 참여한 횟수가 9회 이상인 경우만 계산합니다.
+여러분은 포켓몬 트레이너들의 배틀 성적을 분석하는 작업을 맡게 되었습니다.   
+각 트레이너가 진행한 배틀의 **승리 비율**을 계산해야 하며, 배틀에 참여한 횟수가 **9회 이상**인 경우만 계산합니다.
 
-**떠올릴 수 있는 생각**<br>
-승리 비율(= 승리한 횟수 / 총 배틀 횟수)을 바로 구하면 되겠다!<br>
-=> **이 문제는 간단한 문제라서 이렇게 해도 틀릴 가능성이 적음. 그러나 현업에서 쿼리를 작성할 때는 복잡할 때도 있으니 데이터 결과 검증을 시도하면서 풀어보기.**
+=> 승리 비율(= 승리한 횟수 / 총 배틀 횟수)
 
-**제가 생각한 데이터 결과 검증 프로세스 흐름**
+**데이터 결과 검증 프로세스 흐름**
 - 1) 전체 데이터 파악
 - 2) 특정 user_id 선정
 - 3) 승률 직접 COUNT : 결과 예상
@@ -216,24 +200,12 @@ FROM name_a
 - 5) 실제와 비교
 - 6) 맞다면 특정 유저 조건 제외
 
-#### 1) 전체 데이터 파악
-- 파악할 테이블 : battle 테이블
-![스크린샷](../image/screenshot63.png)
+#### 1) 전체 데이터 파악: battle 데이터 확인
 
 #### 2) 특정 user_id 선정
 - 특정 user_id(battle에선 playerN_id)를 선정
 - 회사에선 자신의 user_id를 사용하지만, 여기선 임의로 선택. 7
-```js
-SELECT
-  *
-FROM 'basic.battle'
-WHERE
-  player1_id = 7
-```
-![스크린샷](../image/screenshot64.png)
-
-- 앞의 쿼리는 틀릴 수 있음. 테이블 다시 확인해보기.
-![스크린샷](../image/screenshot65.png)
+- player1_id가 7이거나 player2_id가 7인 경우를 선택해야 함.
 
 ```js
 SELECT
@@ -242,22 +214,22 @@ FROM 'basic.battle'
 WHERE
   (player1_id = 7) OR (player2_id = 7)
 ```
-![스크린샷](../image/screenshot66.png)
+<img width="403" alt="1" src="https://github.com/user-attachments/assets/417ff54c-472b-4041-8bd9-b97c0f27543a">
+
 
 ### 3) 승률 직접 COUNT : 결과 예상
 - player_id(player1_id, player2_id)가 7인 유저의 승률
-- 총 9회 중 5번 = 5/9 = 0.555556
+- 총 9회 중 5번 = 5/9 = **0.555556** => 답지
 
 ### 4) 쿼리 작성
 - 트레이너가 승리한 비율 구하기
-    - 트레이너가 참여한 배틀의 수 구하기
-    - 트레이너가 승리한 배틀의 수 구하기
-    - 두 개 조합해서 승리한 비율 구할 수 있음
+    - 트레이너가 참여한 배틀의 수 구하기 -> 9
+    - 트레이너가 승리한 배틀의 수 구하기 -> 5
+    - 두 개 조합해서 승리한 비율 구할 수 있음 -> 5/9
     - 단, 이 쿼리를 어떻게 해야할까? 쉽게 가능할까?
 - 배틀의 수가 9 이상만 추출
 - (예상 정답) player_id가 7의 승리한 비율은 0.55556이 나와야 함
-
-- 통합 데이터 생성(player1, 2 구분을 하지 않아도 되는 테이블 => trainer_id 생성)
+- 통합 데이터 생성(player1, 2 구분을 하지 않아도 되는 테이블 => trainer_id 생성) => **UNION ALL**을 사용
 ```js
 SELECT
   *
@@ -266,32 +238,34 @@ FROM (
     id AS battle_id,
     player1_id AS trainer_id,
     winner_id
-  FROM 'basic.battle'
+  FROM basic.battle
   UNION ALL
   SELECT
     id AS battle_id,
     player2_id AS trainer_id,
     winner_id
-  FROM 'basic.battle'
+  FROM basic.battle
 )
 ORDER BY battle_id
 ```
-![스크린샷](../image/screenshot67.png)
+<img width="318" alt="2" src="https://github.com/user-attachments/assets/2847d5fb-c010-48f7-ab4b-9fdcd78dc5b0">
+
 
 - trainer_id = 7의 총 배틀 횟수를 구하는 쿼리
 ```js
+# 위의 쿼리를 WITH문을 사용하여 연결
 WITH battle_basic AS (
   SELECT
     id AS battle_id,
     player1_id AS trainer_id,
     winner_id
-  FROM 'basic.battle'
+  FROM basic.battle
   UNION ALL
   SELECT
     id AS battle_id,
     player2_id AS trainer_id,
     winner_id
-  FROM 'basic.battle'
+  FROM basic.battle
 )
 
 SELECT
@@ -303,7 +277,8 @@ WHERE trainer_id = 7
 GROUP BY
   trainer_id
 ```
-![스크린샷](../image/screenshot68.png)
+<img width="323" alt="3" src="https://github.com/user-attachments/assets/d583ed9e-833f-4bc5-b9ff-793c5ac3821a">
+
 
 - trainer_id와 winner_id를 조합해서 WIN,LOSE, DRAW를 만들어보면 어떨까?
 ```js
@@ -312,13 +287,13 @@ WITH battle_basic AS (
     id AS battle_id,
     player1_id AS trainer_id,
     winner_id
-  FROM 'basic.battle'
+  FROM basic.battle
   UNION ALL
   SELECT
     id AS battle_id,
     player2_id AS trainer_id,
     winner_id
-  FROM 'basic.battle'
+  FROM basic.battle
 )
 
 SELECT
@@ -331,16 +306,25 @@ SELECT
 FROM battle_basic
 WHERE trainer_id = 7
 ```
-![스크린샷](../image/screenshot69.png)
+<img width="393" alt="4" src="https://github.com/user-attachments/assets/dfddcb42-15fe-4c1a-9173-14beca9b86e0">
+
 
 ### 4) 쿼리 작성, 5) 실제와 비교
 - COUNTIF를 사용해 값 구하기
 ```js
 WITH battle_basic AS (
   SELECT
-    ... # 길어져서 생략
-  FROM 'basic.battle'
-), battle_with_result AS (
+    id AS battle_id,
+    player1_id AS trainer_id,
+    winner_id
+  FROM basic.battle
+  UNION ALL
+  SELECT
+    id AS battle_id,
+    player2_id AS trainer_id,
+    winner_id
+  FROM basic.battle
+), battle_with_result AS(
 SELECT
   *,
   CASE
@@ -361,16 +345,25 @@ FROM battle_with_result
 GROUP BY
   trainer_id
 ```
-![스크린샷](../image/screenshot70.png)
+<img width="405" alt="5" src="https://github.com/user-attachments/assets/e627d525-2e90-4be8-98c7-07cdb2dd7723">
+
 
 ### 6) 맞다면 특정 유저 조건 제외
 - WHERE의 trainer_id 제거 후, 총 배틀 횟수가 9 이상만 조건
 ```js
 WITH battle_basic AS (
   SELECT
-    ... # 길어져서 생략
-  FROM 'basic.battle'
-), battle_with_result AS (
+    id AS battle_id,
+    player1_id AS trainer_id,
+    winner_id
+  FROM basic.battle
+  UNION ALL
+  SELECT
+    id AS battle_id,
+    player2_id AS trainer_id,
+    winner_id
+  FROM basic.battle
+), battle_with_result AS(
 SELECT
   *,
   CASE
@@ -379,7 +372,7 @@ SELECT
     ELSE "LOSE"
   END AS battle_result
 FROM battle_basic
-# WHERE trainer_id = 7 주석 처리
+-- WHERE trainer_id = 7
 )
 
 SELECT
@@ -391,17 +384,10 @@ FROM battle_with_result
 GROUP BY
   trainer_id
 HAVING
-  total_battle_count >= 9  
+  total_battle_count >= 9
 ```
-![스크린샷](../image/screenshot71.png)
-
-- trainer_id = 7인 경우엔 동일
-- 나머지 trainer_id도 확인 후에 쿼리 확정
-
-### 이 예시에서 예상한 결과
-- trainer_id = 7일 때 배틀의 횟수 : 9
-- 승리한 횟수 : 5
-- 승리한 비율 : 0.55555...
+<img width="415" alt="6" src="https://github.com/user-attachments/assets/39e7649d-ab0d-4e59-aaf7-f6799279d6aa">
 
 
-## 과제 인증샷
+## 수강인증
+![수강인증](https://github.com/user-attachments/assets/7de336aa-a1ae-4b53-adaa-51d49388dd5c)

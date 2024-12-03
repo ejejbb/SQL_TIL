@@ -261,3 +261,4 @@ ON thala.trainer_id = t.id
 
 ## 과제 인증샷
 
+<img width="569" alt="수강인증2" src="https://github.com/user-attachments/assets/16621cca-ed70-45c7-8d57-4d63f00d412d">

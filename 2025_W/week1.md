@@ -18,6 +18,35 @@ FISH_INFO 테이블에서 잡은 물고기 중 가장 큰 물고기의 길이를
 
 이 때 컬럼명은 'MAX_LENGTH' 로 지정해주세요.
 
+### 정답 쿼리
+```js
+SELECT
+    CONCAT(MAX(LENGTH), "cm") AS MAX_LENGTH
+FROM FISH_INFO
+```
+
+### 문제 풀이 과정
+
+#### 1. 컬럼명을 'MAX_LENGTH' 로 지정하여 가장 큰 물고기의 길이를 출력
+
+```JS
+SELECT
+    MAX(LENGTH) AS MAX_LENGTH
+FROM FISH_INFO
+```
+
+#### 2. "cm"를 붙여서 출력
+
+```JS
+SELECT
+    CONCAT(MAX(LENGTH), "cm") AS MAX_LENGTH
+FROM FISH_INFO
+```
+
+#### 2-1. 문자열 데이터로 할 수 있는 대표적인 연산
+![a](././img/1.1.PNG)
+
+
 
 ## Q2. 잡은 물고기의 평균 길이 구하기
 > IS NULL 사용

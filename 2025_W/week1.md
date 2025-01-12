@@ -117,7 +117,8 @@ FROM
 
 
 ## Q3-1. 대여 횟수가 많은 자동차들의 월별 대여 횟수 구하기
-> Group By 사용
+> Group By   
+> 실제 사용: GROUP BY, ORDER BY, HAVING 등
 
 #### [문제3.1_링크](https://school.programmers.co.kr/learn/courses/30/lessons/151139)
 
@@ -229,3 +230,7 @@ ORDER BY
 
 
 ### 문제
+
+
+## 활동 인증
+![1](././img/1.PNG)

@@ -1,7 +1,7 @@
 # First Study Week
 
 ## Q1. 잡은 물고기 중 가장 큰 물고기의 길이 구하기
-> SUM, MIN, MAX
+> SUM, MIN, MAX   
 > 실제 사용: MAX, CONCAT
 
 #### [문제1_링크](https://school.programmers.co.kr/learn/courses/30/lessons/298515)
@@ -54,7 +54,7 @@ FROM FISH_INFO
 
 
 ## Q2. 잡은 물고기의 평균 길이 구하기
-> IS NULL
+> IS NULL   
 > 실제 사용: IFNULL, AVG, ROUND
 
 #### [문제2_링크](https://school.programmers.co.kr/learn/courses/30/lessons/293259)

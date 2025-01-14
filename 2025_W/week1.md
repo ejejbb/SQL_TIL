@@ -224,12 +224,62 @@ ORDER BY
 
 #### [문제3.2_링크](https://school.programmers.co.kr/learn/courses/30/lessons/157343)
 
-#### 날짜:
+#### 날짜: 0114
 
 ### 문제 설명
+다음은 어느 자동차 대여 회사에서 대여중인 자동차들의 정보를 담은 CAR_RENTAL_COMPANY_CAR 테이블입니다. CAR_RENTAL_COMPANY_CAR 테이블은 아래와 같은 구조로 되어있으며, CAR_ID, CAR_TYPE, DAILY_FEE, OPTIONS 는 각각 자동차 ID, 자동차 종류, 일일 대여 요금(원), 자동차 옵션 리스트를 나타냅니다.
+
+자동차 종류는 '세단', 'SUV', '승합차', '트럭', '리무진' 이 있습니다. 자동차 옵션 리스트는 콤마(',')로 구분된 키워드 리스트(옵션 리스트 값 예시: '열선시트', '스마트키', '주차감지센서')로 되어있으며, 키워드 종류는 '주차감지센서', '스마트키', '네비게이션', '통풍시트', '열선시트', '후방카메라', '가죽시트' 가 있습니다.
 
 
 ### 문제
+`CAR_RENTAL_COMPANY_CAR` 테이블에서 '네비게이션' 옵션이 포함된 자동차 리스트를 출력하는 SQL문을 작성해주세요. 결과는 자동차 ID를 기준으로 내림차순 정렬해주세요.
+
+### 정답 쿼리
+```sql
+SELECT
+    *
+FROM
+    CAR_RENTAL_COMPANY_CAR
+WHERE OPTIONS LIKE '%네비게이션%'
+ORDER BY
+    CAR_ID DESC;
+```
+
+### 문제 풀이 과정
+
+#### 1. 문제의 조건과 출력 결과를 보고 필요한 함수와 SELECT문 작성
+```sql
+SELECT
+    *
+FROM
+    CAR_RENTAL_COMPANY_CAR
+WHERE
+ORDER BY
+    CAR_ID DESC;
+```
+
+#### 2. WHERE 조건 채우기
+```sql
+SELECT
+    *
+FROM
+    CAR_RENTAL_COMPANY_CAR
+WHERE OPTIONS LIKE '%네비게이션%'
+ORDER BY
+    CAR_ID DESC;
+```
+
+#### 2-1. LIKE 연산자
+
+`LIKE` 연산자는 SQL에서 문자열 패턴 매칭을 수행하는 데 사용됩니다. 주로 WHERE 절과 함께 사용되며, 특정 패턴과 일치하는 문자열을 검색하는 데 유용합니다.
+
+|조건|SQL 예제|설명|
+|---|--------|---|
+|특정 문자열 포함|LIKE '%text%'|text가 포함된 모든 문자열 검색|
+|특정 문자로 시작|LIKE 'text%'|text로 시작하는 모든 문자열 검색|
+|특정 문자로 끝남|LIKE '%text'|text로 끝나는 모든 문자열 검색|
+
 
 
 ## 활동 인증

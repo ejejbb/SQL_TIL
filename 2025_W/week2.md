@@ -77,11 +77,11 @@ ORDER BY A.TOTAL_ORDER DESC;
 
 ## Q2. 자동차 종류 별 특정 옵션이 포함된 자동차 수 구하기
 > GROUP BY   
-> 실제 사용: IFNULL, AVG, ROUND
+> 실제 사용: COUNT, GROUP BY, LIKE
 
 #### [문제2_링크](https://school.programmers.co.kr/learn/courses/30/lessons/151137)
 
-#### 날짜: 0118
+#### 날짜: 0120
 
 ### 문제 설명
 다음은 어느 자동차 대여 회사에서 대여중인 자동차들의 정보를 담은 CAR_RENTAL_COMPANY_CAR 테이블입니다. CAR_RENTAL_COMPANY_CAR 테이블은 아래와 같은 구조로 되어있으며, CAR_ID, CAR_TYPE, DAILY_FEE, OPTIONS 는 각각 자동차 ID, 자동차 종류, 일일 대여 요금(원), 자동차 옵션 리스트를 나타냅니다.
@@ -96,51 +96,198 @@ CAR_RENTAL_COMPANY_CAR 테이블에서 '통풍시트', '열선시트', '가죽�
 ### 정답 쿼리
 ```sql
 SELECT
-    ROUND(AVG(IFNULL(LENGTH, 10)), 2) AS AVERAGE_LENGTH
-FROM
-    FISH_INFO
+    CAR_TYPE,
+    COUNT(*) AS CARS
+FROM CAR_RENTAL_COMPANY_CAR
+WHERE
+    OPTIONS LIKE '%통풍시트%'
+    OR OPTIONS LIKE '%열선시트%'
+    OR OPTIONS LIKE '%가죽시트%'
+GROUP BY CAR_TYPE
+ORDER BY CAR_TYPE ASC;
 ```
 
 ### 문제 풀이 과정
 
-#### 1. 컬럼명을 'AVERAGE_LENGTH' 로 지정하여 잡은 물고기의 평균 길이를 출력
+#### 1. SELECT
 
 ```sql
 SELECT
-    AVG(LENGTH) AS AVERAGE_LENGTH
-FROM
-    FISH_INFO
+    CAR_TYPE,
+    COUNT(*) AS CARS
+FROM CAR_RENTAL_COMPANY_CAR
+WHERE
+GROUP BY CAR_TYPE
+ORDER BY
 ```
 
-#### 2. LENGTH 열에 NULL 값이 있는 경우 10 으로 취급
+#### 2. 조건(하나 이상 문자열 포함 -> LIKE)
 
 ```sql
 SELECT
-    AVG(IFNULL(LENGTH, 10)) AS AVERAGE_LENGTH
-FROM
-    FISH_INFO
+    CAR_TYPE,
+    COUNT(*) AS CARS
+FROM CAR_RENTAL_COMPANY_CAR
+WHERE
+    OPTIONS LIKE '%통풍시트%'
+    OR OPTIONS LIKE '%열선시트%'
+    OR OPTIONS LIKE '%가죽시트%'
+GROUP BY CAR_TYPE
+ORDER BY
 ```
 
-#### 3. 소수점 3째자리에서 반올림하여 출력
+#### 3. 자동차 종류 기준 오름차순 정렬
 
 ```sql
 SELECT
-    ROUND(AVG(IFNULL(LENGTH, 10)), 2) AS AVERAGE_LENGTH
-FROM
-    FISH_INFO
+    CAR_TYPE,
+    COUNT(*) AS CARS
+FROM CAR_RENTAL_COMPANY_CAR
+WHERE
+    OPTIONS LIKE '%통풍시트%'
+    OR OPTIONS LIKE '%열선시트%'
+    OR OPTIONS LIKE '%가죽시트%'
+GROUP BY CAR_TYPE
+ORDER BY
+    CAR_TYPE ASC;
 ```
 
-### 출력 결과
-![2.1](././img/2.1.PNG)
+
+## Q3. 가장 큰 물고기 10마리 구하기
+> SELECT   
+> 실제 사용: 
+
+#### [문제3_링크](https://school.programmers.co.kr/learn/courses/30/lessons/298517)
+
+#### 날짜: 0120
+
+### 문제 설명
+낚시앱에서 사용하는 FISH_INFO 테이블은 잡은 물고기들의 정보를 담고 있습니다. FISH_INFO 테이블의 구조는 다음과 같으며 ID, FISH_TYPE, LENGTH, TIME은 각각 잡은 물고기의 ID, 물고기의 종류(숫자), 잡은 물고기의 길이(cm), 물고기를 잡은 날짜를 나타냅니다.
+
+단, 잡은 물고기의 길이가 10cm 이하일 경우에는 LENGTH 가 NULL 이며, LENGTH 에 NULL 만 있는 경우는 없습니다.
+
+### 문제
+FISH_INFO 테이블에서 가장 큰 물고기 10마리의 ID와 길이를 출력하는 SQL 문을 작성해주세요. 결과는 길이를 기준으로 내림차순 정렬하고, 길이가 같다면 물고기의 ID에 대해 오름차순 정렬해주세요. 단, 가장 큰 물고기 10마리 중 길이가 10cm 이하인 경우는 없습니다.
+
+ID 컬럼명은 ID, 길이 컬럼명은 LENGTH로 해주세요. 결과를 길이에 대해 내림차순 정렬하고, 길이가 같다면 물고기의 ID에 대해 오름차순 정렬하세요.
+
+### 정답 쿼리
+```sql
+
+```
+
+### 문제 풀이 과정
+
+#### 1. `FLAVOR`을 키로 하여 두 테이블을 JOIN 
+
+```sql
+
+```
+
+#### 1-1. JOIN 쿼리 작성하기
+FROM 하단에 JOIN 할 Table을 작성하고   
+ON 뒤에 공통된 컬럼(Key)를 작성   
+![A](/2025_W/img/2-1.PNG)
+
+#### 2. 조건 설정: `총주문량`이 3,000 초과, `INGREDITENT_TYPE` 이 fruit_based
+
+```sql
+
+```
+
+#### 3. FLAVOR을 총주문량이 큰 순서대로 정렬
+
+```sql
+
+```
 
 
-## Q3-1. 대여 횟수가 많은 자동차들의 월별 대여 횟수 구하기
+
+
+## Q4. 
+> GROUP BY   
+> 실제 사용:
+
+#### [문제4_링크]()
+
+#### 날짜: 0120
+
+### 문제 설명
+다음은 어느 자동차 대여 회사에서 대여중인 자동차들의 정보를 담은 CAR_RENTAL_COMPANY_CAR 테이블입니다. CAR_RENTAL_COMPANY_CAR 테이블은 아래와 같은 구조로 되어있으며, CAR_ID, CAR_TYPE, DAILY_FEE, OPTIONS 는 각각 자동차 ID, 자동차 종류, 일일 대여 요금(원), 자동차 옵션 리스트를 나타냅니다.
+
+자동차 종류는 '세단', 'SUV', '승합차', '트럭', '리무진' 이 있습니다. 자동차 옵션 리스트는 콤마(',')로 구분된 키워드 리스트(옵션 리스트 값 예시: '열선시트', '스마트키', '주차감지센서')로 되어있으며, 키워드 종류는 '주차감지센서', '스마트키', '네비게이션', '통풍시트', '열선시트', '후방카메라', '가죽시트' 가 있습니다.
+
+
+### 문제
+CAR_RENTAL_COMPANY_CAR 테이블에서 '통풍시트', '열선시트', '가죽시트' 중 하나 이상의 옵션이 포함된 자동차가 자동차 종류 별로 몇 대인지 출력하는 SQL문을 작성해주세요. 이때 자동차 수에 대한 컬럼명은 CARS로 지정하고, 결과는 자동차 종류를 기준으로 오름차순 정렬해주세요.
+
+
+### 정답 쿼리
+```sql
+SELECT
+    CAR_TYPE,
+    COUNT(*) AS CARS
+FROM CAR_RENTAL_COMPANY_CAR
+WHERE
+    OPTIONS LIKE '%통풍시트%'
+    OR OPTIONS LIKE '%열선시트%'
+    OR OPTIONS LIKE '%가죽시트%'
+GROUP BY CAR_TYPE
+ORDER BY CAR_TYPE ASC;
+```
+
+### 문제 풀이 과정
+
+#### 1. SELECT
+
+```sql
+SELECT
+    CAR_TYPE,
+    COUNT(*) AS CARS
+FROM CAR_RENTAL_COMPANY_CAR
+WHERE
+GROUP BY CAR_TYPE
+ORDER BY
+```
+
+#### 2. 조건(하나 이상 문자열 포함 -> LIKE)
+
+```sql
+SELECT
+    CAR_TYPE,
+    COUNT(*) AS CARS
+FROM CAR_RENTAL_COMPANY_CAR
+WHERE
+    OPTIONS LIKE '%통풍시트%'
+    OR OPTIONS LIKE '%열선시트%'
+    OR OPTIONS LIKE '%가죽시트%'
+GROUP BY CAR_TYPE
+ORDER BY
+```
+
+#### 3. 자동차 종류 기준 오름차순 정렬
+
+```sql
+SELECT
+    CAR_TYPE,
+    COUNT(*) AS CARS
+FROM CAR_RENTAL_COMPANY_CAR
+WHERE
+    OPTIONS LIKE '%통풍시트%'
+    OR OPTIONS LIKE '%열선시트%'
+    OR OPTIONS LIKE '%가죽시트%'
+GROUP BY CAR_TYPE
+ORDER BY
+    CAR_TYPE ASC;
+```
+
+## Q5-1. 
 > Group By   
 > 실제 사용: GROUP BY, ORDER BY, HAVING 등
 
 #### [문제3.1_링크](https://school.programmers.co.kr/learn/courses/30/lessons/151139)
 
-#### 날짜: 0113
+#### 날짜: 0121
 
 ### 문제 설명
 다음은 어느 자동차 대여 회사의 자동차 대여 기록 정보를 담은 `CAR_RENTAL_COMPANY_RENTAL_HISTORY` 테이블입니다. `CAR_RENTAL_COMPANY_RENTAL_HISTORY` 테이블은 아래와 같은 구조로 되어있으며, `HISTORY_ID`, `CAR_ID`, `START_DATE`, `END_DATE` 는 각각 자동차 대여 기록 ID, 자동차 ID, 대여 시작일, 대여 종료일을 나타냅니다.
@@ -158,24 +305,7 @@ FROM
 
 ### 정답 쿼리
 ```sql
-SELECT
-    MONTH(START_DATE) AS MONTH,
-    CAR_ID,
-    COUNT(*) AS RECORDS
-FROM CAR_RENTAL_COMPANY_RENTAL_HISTORY
-WHERE
-    MONTH(START_DATE) BETWEEN 8 AND 10
-    AND CAR_ID IN(
-        SELECT CAR_ID
-        FROM CAR_RENTAL_COMPANY_RENTAL_HISTORY
-        WHERE MONTH(START_DATE) BETWEEN 8 AND 10
-        GROUP BY CAR_ID
-        HAVING COUNT(*) >= 5)
-GROUP BY
-    MONTH, CAR_ID
-ORDER BY
-    MONTH ASC,
-    CAR_ID DESC;
+
 ```
 
 ### 문제 풀이 과정
@@ -236,8 +366,7 @@ ORDER BY
 ```
 
 
-
-## Q3-2. 특정 옵션이 포함된 자동차 리스트 구하기
+## Q5-2. 
 > String, Date 사용
 
 #### [문제3.2_링크](https://school.programmers.co.kr/learn/courses/30/lessons/157343)

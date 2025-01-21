@@ -288,11 +288,11 @@ ORDER BY
 데이터 타입이 VARCHAR(10) 이다.   
 = 최대 10개의 문자까지 저장할 수 있다는 의미
 
-## Q5-A. 
+## Q5-A. 조건에 맞는 사용자 정보 조회하기
 > STRING, DATE   
 > 실제 사용: 
 
-#### [문제5.A_링크]()
+#### [문제5.A_링크](https://school.programmers.co.kr/learn/courses/30/lessons/164670)
 
 #### 날짜: 0121
 
@@ -334,8 +334,9 @@ USED_GOODS_BOARD와 USED_GOODS_USER 테이블에서 중고 거래 게시물을 3
 ```
 
 
-## Q5-B. 
-> String, Date 사용
+## Q5-B. 조건에 맞는 사용자와 총 거래금액 조회하기
+> GROUP BY   
+> 실제 사용: SUM, LEFT JOIN, GROUP BY, HAVING
 
 #### [문제5.B_링크](https://school.programmers.co.kr/learn/courses/30/lessons/164668)
 

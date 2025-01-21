@@ -352,32 +352,64 @@ USED_GOODS_BOARD와 USED_GOODS_USER 테이블에서 완료된 중고 거래의 �
 
 ### 정답 쿼리
 ```sql
-
+SELECT
+    B.USER_ID,
+    B.NICKNAME,
+    SUM(A.PRICE) AS TOTAL_SALES
+FROM USED_GOODS_USER AS B
+LEFT JOIN USED_GOODS_BOARD AS A
+ON A.WRITER_ID = B.USER_ID
+WHERE
+    A.STATUS = 'DONE'
+GROUP BY B.USER_ID, B.NICKNAME
+HAVING TOTAL_SALES >= 700000
+ORDER BY
+    TOTAL_SALES ASC;
 ```
 
 ### 문제 풀이 과정
 
 #### 1. 문제의 조건과 출력 결과를 보고 필요한 함수와 SELECT문 작성
 ```sql
-
+SELECT
+    B.USER_ID,
+    B.NICKNAME,
+    AS TOTAL_SALES
+FROM USED_GOODS_USER AS B
+LEFT JOIN USED_GOODS_BOARD AS A
+ON A.WRITER_ID = B.USER_ID
+WHERE
+    A.STATUS = 'DONE'
+HAVING TOTAL_SALES >= 700000
+ORDER BY
+    TOTAL_SALES ASC;
 ```
 
-#### 2. WHERE 조건 채우기
+#### 1-1. WHERE과 HAVING
+
+`WHERE`는 원본 데이터 필터링에 사용   
+`HAVING`은 그룹화된 결과에 조건을 적용   
+=> `GROUP BY`로 조건을 설정하는 경우 WHERE과 HAVING 사이에 들어간다. 따라서 필터링이냐 결과에 조건을 덧붙이는 것이냐에 따라 WHERE을 사용할지 HAVING을 사용할지 결정할 수 있다.
+
+#### 2. TOTAL_SALES 정의하기
+
 ```sql
-
+SELECT
+    B.USER_ID,
+    B.NICKNAME,
+    SUM(A.PRICE) AS TOTAL_SALES
+FROM USED_GOODS_USER AS B
+LEFT JOIN USED_GOODS_BOARD AS A
+ON A.WRITER_ID = B.USER_ID
+WHERE
+    A.STATUS = 'DONE'
+GROUP BY B.USER_ID, B.NICKNAME
+HAVING TOTAL_SALES >= 700000
+ORDER BY
+    TOTAL_SALES ASC;
 ```
-
-#### 2-1. LIKE 연산자
-
-`LIKE` 연산자는 SQL에서 문자열 패턴 매칭을 수행하는 데 사용됩니다. 주로 WHERE 절과 함께 사용되며, 특정 패턴과 일치하는 문자열을 검색하는 데 유용합니다.
-
-|조건|SQL 예제|설명|
-|---|--------|---|
-|특정 문자열 포함|LIKE '%text%'|text가 포함된 모든 문자열 검색|
-|특정 문자로 시작|LIKE 'text%'|text로 시작하는 모든 문자열 검색|
-|특정 문자로 끝남|LIKE '%text'|text로 끝나는 모든 문자열 검색|
 
 
 
 ## 활동 인증
-![1](././img/1.PNG)
+![2](././img/2.PNG)

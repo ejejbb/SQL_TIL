@@ -307,7 +307,22 @@ USED_GOODS_BOARD와 USED_GOODS_USER 테이블에서 중고 거래 게시물을 3
 
 ### 정답 쿼리
 ```sql
-
+SELECT
+    B.USER_ID,
+    B.NICKNAME,
+    CONCAT(B.CITY, ' ', B.STREET_ADDRESS1, ' ',B.STREET_ADDRESS2) AS 전체주소,
+    CONCAT(
+        SUBSTRING(TLNO, 1, 3), '-',
+        SUBSTRING(TLNO, 4, 4), '-',
+        SUBSTRING(TLNO, 8, 4)
+    ) AS 전화번호
+FROM USED_GOODS_BOARD AS A
+LEFT JOIN USED_GOODS_USER AS B
+ON A.WRITER_ID = B.USER_ID
+GROUP BY B.USER_ID
+HAVING COUNT(*) >= 3
+ORDER BY
+    B.USER_ID DESC;
 ```
 
 ### 문제 풀이 과정
@@ -410,6 +425,18 @@ ORDER BY
     TOTAL_SALES ASC;
 ```
 
+
+
+
+```sql
+SELECT
+    COUNT(*) AS COUNT
+FROM ECOLI_DATA
+WHERE
+    SUBSTRING(BIN(GENOTYPE),-2,1) != 1
+    AND (SUBSTRING(BIN(GENOTYPE),-1,1) = 1
+    OR SUBSTRING(BIN(GENOTYPE),-3,1) = 1)
+```
 
 
 ## 활동 인증

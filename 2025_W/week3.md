@@ -274,7 +274,7 @@ WHERE RARITY = 'LEGEND'
 ```
 
 
-## Q10. 카테고리 별 상품 개수 구하기
+## Q9. 카테고리 별 상품 개수 구하기
 > COUNT, LEFT, GROUP BY
 
 #### 날짜: 0124
@@ -324,4 +324,64 @@ FROM(
     FROM PRODUCT) AS A
 GROUP BY 상품코드
 ORDER BY 상품코드 ASC;
+```
+
+## Q10. 동물 수 구하기
+> COUNT
+
+#### 날짜: 0124
+
+### 문제설명
+ANIMAL_INS 테이블은 동물 보호소에 들어온 동물의 정보를 담은 테이블입니다. ANIMAL_INS 테이블 구조는 다음과 같으며, ANIMAL_ID, ANIMAL_TYPE, DATETIME, INTAKE_CONDITION, NAME, SEX_UPON_INTAKE는 각각 동물의 아이디, 생물 종, 보호 시작일, 보호 시작 시 상태, 이름, 성별 및 중성화 여부를 나타냅니다.
+
+### 문제
+동물 보호소에 동물이 몇 마리 들어왔는지 조회하는 SQL 문을 작성해주세요.
+
+### 정답 쿼리
+
+동물 종류 수 구하는 줄 알고 헤맴....
+
+```sql
+SELECT
+    COUNT(*) AS count
+FROM ANIMAL_INS;
+```
+
+### 번외(동물 종류의 수 구하기)
+
+```SQL
+[방법1]
+SELECT
+    COUNT(DISTINCT ANIMAL_TYPE) AS COUNT
+FROM ANIMAL_INS;
+```
+
+```SQL
+[방법2]
+SELECT
+    COUNT(*) AS count
+FROM(
+    SELECT
+        COUNT(ANIMAL_TYPE) AS cnt
+    FROM ANIMAL_INS
+    GROUP BY
+        ANIMAL_TYPE) AS A
+```
+
+## Q11. 진료과별 총 예약 횟수 출력하기
+> 
+
+#### 날짜: 0124
+
+### 문제설명
+다음은 종합병원의 진료 예약정보를 담은 APPOINTMENT 테이블 입니다.   
+APPOINTMENT 테이블은 다음과 같으며 APNT_YMD, APNT_NO, PT_NO, MCDP_CD, MDDR_ID, APNT_CNCL_YN, APNT_CNCL_YMD는 각각 진료예약일시, 진료예약번호, 환자번호, 진료과코드, 의사ID, 예약취소여부, 예약취소날짜를 나타냅니다.
+
+### 문제
+APPOINTMENT 테이블에서 2022년 5월에 예약한 환자 수를 진료과코드 별로 조회하는 SQL문을 작성해주세요. 이때, 컬럼명은 '진료과 코드', '5월예약건수'로 지정해주시고 결과는 진료과별 예약한 환자 수를 기준으로 오름차순 정렬하고, 예약한 환자 수가 같다면 진료과 코드를 기준으로 오름차순 정렬해주세요.
+
+### 정답 쿼리
+
+```sql
+
 ```

@@ -194,7 +194,7 @@ ORDER BY
 
 
 ## Q6. DATETIME에서 DATE로 형 변환
-> IFNULL 
+> DATE_FORMAT
 
 #### 날짜: 0124
 
@@ -206,7 +206,122 @@ ANIMAL_INS 테이블에 등록된 모든 레코드에 대해, 각 동물의 아�
 
 ### 정답 쿼리
 
+```sql
+SELECT
+    ANIMAL_ID,
+    NAME,
+    DATE_FORMAT(DATETIME, '%Y-%m-%d') AS 날짜
+FROM ANIMAL_INS
+ORDER BY
+    ANIMAL_ID ASC;
+```
+
+```
+DATE(DATETIME)
+CONVERT(DATETIME, DATE)
+CAST(DATETIME AS DATE)
+
+위의 세 가지 방법을 모두 사용해봤지만,
+출력결과가 TIME부분이 0으로 바뀌는 형태로 출력됨.
+
+출력결과를 확실히 DATE만 반환하도록 하려면 결과를 VARCHAR로 반환하여야 함을 알게됨.
+=> DATE_FORMAT(DATETIME, '%Y-%m-%d') 사용
+
+※주의할 점: '%Y-%M-%D'로 입력하면 '2018-January-22nd' 이렇게 반환됨
+```
+
+## Q7. 가격이 제일 비싼 식품의 정보 출력하기
+> ORDER BY, LIMIT
+
+#### 날짜: 0124
+
+### 문제설명
+다음은 식품의 정보를 담은 FOOD_PRODUCT 테이블입니다. FOOD_PRODUCT 테이블은 다음과 같으며 PRODUCT_ID, PRODUCT_NAME, PRODUCT_CD, CATEGORY, PRICE는 식품 ID, 식품 이름, 식품 코드, 식품분류, 식품 가격을 의미합니다.
+
+### 문제
+FOOD_PRODUCT 테이블에서 가격이 제일 비싼 식품의 식품 ID, 식품 이름, 식품 코드, 식품분류, 식품 가격을 조회하는 SQL문을 작성해주세요.
+
+### 정답 쿼리
 
 ```sql
+SELECT
+    *
+FROM FOOD_PRODUCT
+ORDER BY
+    PRICE DESC
+LIMIT 1;
+```
 
+
+## Q8. 조건에 맞는 아이템들의 가격의 총합 구하기
+> SUM
+
+#### 날짜: 0124
+
+### 문제설명
+다음은 어느 한 게임에서 사용되는 아이템들의 아이템 정보를 담은 ITEM_INFO 테이블입니다. ITEM_INFO 테이블은 다음과 같으며, ITEM_ID, ITEM_NAME, RARITY, PRICE는 각각 아이템 ID, 아이템 명, 아이템의 희귀도, 아이템의 가격을 나타냅니다.
+
+### 문제
+ITEM_INFO 테이블에서 희귀도가 'LEGEND'인 아이템들의 가격의 총합을 구하는 SQL문을 작성해 주세요. 이때 컬럼명은 'TOTAL_PRICE'로 지정해 주세요.
+
+### 정답 쿼리
+
+```sql
+SELECT
+    SUM(PRICE) AS TOTAL_PRICE
+FROM ITEM_INFO
+WHERE RARITY = 'LEGEND'
+```
+
+
+## Q10. 카테고리 별 상품 개수 구하기
+> COUNT, LEFT, GROUP BY
+
+#### 날짜: 0124
+
+### 문제설명
+다음은 어느 의류 쇼핑몰에서 판매중인 상품들의 정보를 담은 PRODUCT 테이블입니다. PRODUCT 테이블은 아래와 같은 구조로 되어있으며, PRODUCT_ID, PRODUCT_CODE, PRICE는 각각 상품 ID, 상품코드, 판매가를 나타냅니다.   
+상품 별로 중복되지 않는 8자리 상품코드 값을 가지며, 앞 2자리는 카테고리 코드를 의미합니다.
+
+### 문제
+PRODUCT 테이블에서 상품 카테고리 코드(PRODUCT_CODE 앞 2자리) 별 상품 개수를 출력하는 SQL문을 작성해주세요. 결과는 상품 카테고리 코드를 기준으로 오름차순 정렬해주세요.
+
+### 정답 쿼리
+
+```sql
+SELECT
+    상품코드 AS CATEGORY,
+    COUNT(*) AS PRODUCTS
+FROM(
+    SELECT
+        *,
+        LEFT(PRODUCT_CODE, 2) AS 상품코드
+    FROM PRODUCT) AS A
+GROUP BY 상품코드
+ORDER BY 상품코드 ASC;
+```
+
+### 문제 풀이 과정
+
+#### 1. LEFT 함수를 사용하여 상품코드 뽑아보기
+```SQL
+SELECT
+    *,
+    LEFT(PRODUCT_CODE, 2) AS 상품코드
+FROM PRODUCT
+```
+![실행결과](/2025_W/img/3.PNG)
+
+#### 2. 상품코드별로 그룹화하고 COUNT 사용하여 카테고리 별 상품 개수 구하기
+```SQL
+SELECT
+    상품코드 AS CATEGORY,
+    COUNT(*) AS PRODUCTS
+FROM(
+    SELECT
+        *,
+        LEFT(PRODUCT_CODE, 2) AS 상품코드
+    FROM PRODUCT) AS A
+GROUP BY 상품코드
+ORDER BY 상품코드 ASC;
 ```

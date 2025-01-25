@@ -682,3 +682,6 @@ ORDER BY
     A.DATETIME
 LIMIT 3;
 ```
+
+## 활동 인증
+![3](././img/3.2.PNG)

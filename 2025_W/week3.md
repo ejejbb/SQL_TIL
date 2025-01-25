@@ -520,3 +520,165 @@ WHERE CATEGORY = '경제'
 ORDER BY
     PUBLISHED_DATE ASC;
 ```
+
+
+## Q16. 상품 별 오프라인 매출 구하기
+> *(연산자), SUM
+
+#### 날짜: 0126
+
+### 문제설명
+다음은 어느 의류 쇼핑몰에서 판매중인 상품들의 상품 정보를 담은 `PRODUCT` 테이블과 오프라인 상품 판매 정보를 담은 `OFFLINE_SALE` 테이블 입니다.
+
+`PRODUCT` 테이블은 아래와 같은 구조로 PRODUCT_ID, PRODUCT_CODE, PRICE는 각각 상품 ID, 상품코드, 판매가를 나타냅니다. 상품 별로 중복되지 않는 8자리 상품코드 값을 가지며, 앞 2자리는 카테고리 코드를 의미합니다.
+
+`OFFLINE_SALE` 테이블은 아래와 같은 구조로 되어있으며 OFFLINE_SALE_ID, PRODUCT_ID, SALES_AMOUNT, SALES_DATE는 각각 오프라인 상품 판매 ID, 상품 ID, 판매량, 판매일을 나타냅니다. 동일한 날짜, 상품 ID 조합에 대해서는 하나의 판매 데이터만 존재합니다.
+
+### 문제
+PRODUCT 테이블과 OFFLINE_SALE 테이블에서 상품코드 별 매출액(판매가 * 판매량) 합계를 출력하는 SQL문을 작성해주세요. 결과는 매출액을 기준으로 내림차순 정렬해주시고 매출액이 같다면 상품코드를 기준으로 오름차순 정렬해주세요.
+
+### 정답 쿼리
+
+B 테이블에서 SALES_AMOUNT가 SALES_DATE 에 따라 다르게 나타나므로 SUM()을 사용하여 집계
+
+```sql
+SELECT
+    PRODUCT_CODE,
+    PRICE * SUM(SALES_AMOUNT) AS SALES
+FROM PRODUCT AS A
+LEFT JOIN OFFLINE_SALE AS B
+ON A.PRODUCT_ID = B.PRODUCT_ID
+GROUP BY PRODUCT_CODE
+ORDER BY
+    SALES DESC,
+    PRODUCT_CODE ASC;
+```
+
+
+## Q17. 성분으로 구분한 아이스크림 총 주문량
+> SUM
+
+#### 날짜: 0126
+
+### 문제설명
+다음은 아이스크림 가게의 상반기 주문 정보를 담은 FIRST_HALF 테이블과 아이스크림 성분에 대한 정보를 담은 ICECREAM_INFO 테이블입니다. FIRST_HALF 테이블 구조는 다음과 같으며, SHIPMENT_ID, FLAVOR, TOTAL_ORDER 는 각각 아이스크림 공장에서 아이스크림 가게까지의 출하 번호, 아이스크림 맛, 상반기 아이스크림 총주문량을 나타냅니다. FIRST_HALF 테이블의 기본 키는 FLAVOR입니다.
+
+ICECREAM_INFO 테이블 구조는 다음과 같으며, FLAVOR, INGREDITENT_TYPE 은 각각 아이스크림 맛, 아이스크림의 성분 타입을 나타냅니다. INGREDIENT_TYPE에는 아이스크림의 주 성분이 설탕이면 sugar_based라고 입력되고, 아이스크림의 주 성분이 과일이면 fruit_based라고 입력됩니다. ICECREAM_INFO의 기본 키는 FLAVOR입니다. ICECREAM_INFO테이블의 FLAVOR는 FIRST_HALF 테이블의 FLAVOR의 외래 키입니다.
+
+### 문제
+상반기 동안 각 아이스크림 성분 타입과 성분 타입에 대한 아이스크림의 총주문량을 총주문량이 작은 순서대로 조회하는 SQL 문을 작성해주세요. 이때 총주문량을 나타내는 컬럼명은 TOTAL_ORDER로 지정해주세요.
+
+### 정답 쿼리
+
+작은 순서대로 -> ASC
+
+```sql
+SELECT
+    INGREDIENT_TYPE,
+    SUM(TOTAL_ORDER) AS TOTAL_ORDER
+FROM FIRST_HALF AS A
+LEFT JOIN ICECREAM_INFO AS B
+ON A.FLAVOR = B.FLAVOR
+GROUP BY INGREDIENT_TYPE
+ORDER BY
+    TOTAL_ORDER ASC;
+```
+
+
+## Q18. 3월에 태어난 여성 회원 목록 출력하기
+> DATE_FORMAT, MONTH
+
+#### 날짜: 0126
+
+### 문제설명
+다음은 식당 리뷰 사이트의 회원 정보를 담은 MEMBER_PROFILE 테이블입니다. MEMBER_PROFILE 테이블은 다음과 같으며 MEMBER_ID, MEMBER_NAME, TLNO, GENDER, DATE_OF_BIRTH는 회원 ID, 회원 이름, 회원 연락처, 성별, 생년월일을 의미합니다.
+
+### 문제
+MEMBER_PROFILE 테이블에서 생일이 3월인 여성 회원의 ID, 이름, 성별, 생년월일을 조회하는 SQL문을 작성해주세요. 이때 전화번호가 NULL인 경우는 출력대상에서 제외시켜 주시고, 결과는 회원ID를 기준으로 오름차순 정렬해주세요.
+
+### 정답 쿼리
+
+DATE_OF_BIRTH 가 '1993-03-16' 형태로 출력되어야 하므로 DATE_FORMAT(DATE_OF_BIRTH, '%Y-%m-%d') 사용
+
+[조건]   
+- 전화번호가 NULL인 경우는 출력대상에서 제외   
+- 생일이 3월인 여성 회원
+
+```sql
+SELECT
+    MEMBER_ID,
+    MEMBER_NAME,
+    GENDER,
+    DATE_FORMAT(DATE_OF_BIRTH, '%Y-%m-%d') AS DATE_OF_BIRTH
+FROM MEMBER_PROFILE
+WHERE
+    TLNO IS NOT NULL
+    AND GENDER = 'W'
+    AND MONTH(DATE_OF_BIRTH) = 3
+ORDER BY
+    MEMBER_ID ASC;
+```
+
+
+## Q19. 루시와 엘라 찾기
+> IN
+
+#### 날짜: 0126
+
+### 문제설명
+ANIMAL_INS 테이블은 동물 보호소에 들어온 동물의 정보를 담은 테이블입니다. ANIMAL_INS 테이블 구조는 다음과 같으며, ANIMAL_ID, ANIMAL_TYPE, DATETIME, INTAKE_CONDITION, NAME, SEX_UPON_INTAKE는 각각 동물의 아이디, 생물 종, 보호 시작일, 보호 시작 시 상태, 이름, 성별 및 중성화 여부를 나타냅니다.
+
+### 문제
+동물 보호소에 들어온 동물 중 이름이 Lucy, Ella, Pickle, Rogan, Sabrina, Mitty인 동물의 아이디와 이름, 성별 및 중성화 여부를 조회하는 SQL 문을 작성해주세요.   
+결과는 아이디 순으로 조회해주세요.
+
+### 정답 쿼리
+
+WHERE IN 사용하여 NAME이 Lucy, Ella, Pickle, Rogan, Sabrina, Mitty 인 것을 뽑아냄. OR을 사용해서 길게 쿼리문을 짜는 것보다 간결함.
+
+```sql
+SELECT
+    ANIMAL_ID,
+    NAME,
+    SEX_UPON_INTAKE
+FROM ANIMAL_INS
+WHERE
+    NAME IN ('Lucy', 'Ella', 'Pickle', 'Rogan', 'Sabrina', 'Mitty')
+ORDER BY
+    ANIMAL_ID;
+```
+
+
+## Q20. 오랜 기간 보호한 동물(1)
+> LEFT JOIN, LIMIT
+
+#### [문제20_링크](https://school.programmers.co.kr/learn/courses/30/lessons/59044)
+
+#### 날짜: 0126
+
+### 문제설명
+`ANIMAL_INS` 테이블은 동물 보호소에 들어온 동물의 정보를 담은 테이블입니다. ANIMAL_INS 테이블 구조는 다음과 같으며, ANIMAL_ID, ANIMAL_TYPE, DATETIME, INTAKE_CONDITION, NAME, SEX_UPON_INTAKE는 각각 동물의 아이디, 생물 종, 보호 시작일, 보호 시작 시 상태, 이름, 성별 및 중성화 여부를 나타냅니다.
+
+`ANIMAL_OUTS` 테이블은 동물 보호소에서 입양 보낸 동물의 정보를 담은 테이블입니다. ANIMAL_OUTS 테이블 구조는 다음과 같으며, ANIMAL_ID, ANIMAL_TYPE, DATETIME, NAME, SEX_UPON_OUTCOME는 각각 동물의 아이디, 생물 종, 입양일, 이름, 성별 및 중성화 여부를 나타냅니다. ANIMAL_OUTS 테이블의 ANIMAL_ID는 ANIMAL_INS의 ANIMAL_ID의 외래 키입니다
+
+### 문제
+아직 입양을 못 간 동물 중, 가장 오래 보호소에 있었던 동물 3마리의 이름과 보호 시작일을 조회하는 SQL문을 작성해주세요. 이때 결과는 보호 시작일 순으로 조회해야 합니다.
+
+### 정답 쿼리
+
+아직 입양을 못 간 동물 -> A 테이블에 B 테이블을 LEFT JOIN 한 경우, B 테이블의 값이 연결되지 않았을 것 -> B 테이블의 값 중 하나인 B.DATETIME 이 NULL 값인 경우를 조건으로 설정
+
+두 테이블에서 같은 이름을 가지는 열의 경우 어떤 테이블의 열 이름인지 명시해야 함.
+
+```sql
+SELECT
+    A.NAME,
+    A.DATETIME
+FROM ANIMAL_INS AS A
+LEFT JOIN ANIMAL_OUTS AS B
+ON A.ANIMAL_ID = B.ANIMAL_ID
+WHERE B.DATETIME IS NULL
+ORDER BY
+    A.DATETIME
+LIMIT 3;
+```

@@ -166,7 +166,7 @@ ORDER BY MONTH;
 
 
 ## Q6. 조건에 맞는 사원 정보 조회하기
-> 
+> 서브쿼리
 
 #### 날짜: 0128
 
@@ -206,4 +206,121 @@ LIMIT 1;
 
 ### 문제 풀이 과정
 
+#### 1. SCORE은 상반기와 하반기의 점수 합으로 나타내야 한다. 따라서 `HR_GRADE` 테이블을 사용하여 필요에 맞게 변형한다.
+
+```sql
+SELECT
+    EMP_NO,
+    SUM(SCORE) AS SCORE
+FROM HR_GRADE
+GROUP BY EMP_NO
+```
 ![결과](/2025_W/img/4-1.PNG)
+
+#### 2. 1번에서 만든 테이블을 C로 별칭을 지정하여 활용
+
+```sql
+SELECT
+    SCORE,
+    C.EMP_NO,
+    EMP_NAME,
+    POSITION,
+    EMAIL
+FROM HR_EMPLOYEES AS B
+LEFT JOIN (
+    SELECT
+        EMP_NO,
+        SUM(SCORE) AS SCORE
+    FROM HR_GRADE
+    GROUP BY EMP_NO) AS C
+ON B.EMP_NO = C.EMP_NO
+ORDER BY
+    SCORE DESC
+LIMIT 1;
+```
+
+
+## Q7. 재구매가 일어난 상품과 회원 리스트 구하기
+> GROUP BY, HAVING
+
+#### 날짜: 0128
+
+### 문제설명
+다음은 어느 의류 쇼핑몰의 온라인 상품 판매 정보를 담은 ONLINE_SALE 테이블 입니다. ONLINE_SALE 테이블은 아래와 같은 구조로 되어있으며 ONLINE_SALE_ID, USER_ID, PRODUCT_ID, SALES_AMOUNT, SALES_DATE는 각각 온라인 상품 판매 ID, 회원 ID, 상품 ID, 판매량, 판매일을 나타냅니다.
+
+동일한 날짜, 회원 ID, 상품 ID 조합에 대해서는 하나의 판매 데이터만 존재합니다.
+
+### 문제
+ONLINE_SALE 테이블에서 동일한 회원이 동일한 상품을 재구매한 데이터를 구하여, 재구매한 회원 ID와 재구매한 상품 ID를 출력하는 SQL문을 작성해주세요. 결과는 회원 ID를 기준으로 오름차순 정렬해주시고 회원 ID가 같다면 상품 ID를 기준으로 내림차순 정렬해주세요.
+
+### 정답 쿼리
+
+```sql
+SELECT
+    USER_ID,
+    PRODUCT_ID
+FROM ONLINE_SALE
+GROUP BY USER_ID, PRODUCT_ID
+HAVING COUNT(*) > 1
+ORDER BY
+    USER_ID,
+    PRODUCT_ID DESC;
+```
+
+
+## Q8. 특정 물고기를 잡은 총 수 구하기
+> IN
+
+#### 날짜: 0128
+
+### 문제설명
+낚시앱에서 사용하는 FISH_INFO 테이블은 잡은 물고기들의 정보를 담고 있습니다. FISH_INFO 테이블의 구조는 다음과 같으며 ID, FISH_TYPE, LENGTH, TIME은 각각 잡은 물고기의 ID, 물고기의 종류(숫자), 잡은 물고기의 길이(cm), 물고기를 잡은 날짜를 나타냅니다.
+
+단, 잡은 물고기의 길이가 10cm 이하일 경우에는 LENGTH 가 NULL 이며, LENGTH 에 NULL 만 있는 경우는 없습니다.
+
+FISH_NAME_INFO 테이블은 물고기의 이름에 대한 정보를 담고 있습니다. FISH_NAME_INFO 테이블의 구조는 다음과 같으며, FISH_TYPE, FISH_NAME 은 각각 물고기의 종류(숫자), 물고기의 이름(문자) 입니다.
+
+### 문제
+FISH_INFO 테이블에서 잡은 BASS와 SNAPPER의 수를 출력하는 SQL 문을 작성해주세요. 컬럼명은 'FISH_COUNT`로 해주세요.
+
+### 정답 쿼리
+
+```sql
+SELECT
+    COUNT(*) AS FISH_COUNT
+FROM FISH_INFO AS A
+LEFT JOIN FISH_NAME_INFO AS B
+ON A.FISH_TYPE = B.FISH_TYPE
+WHERE B.FISH_NAME IN ('BASS', 'SNAPPER')
+```
+
+
+## Q9. 자동차 평균 대여 기간 구하기
+> 
+
+#### 날짜: 0128
+
+### 문제설명
+다음은 어느 자동차 대여 회사의 자동차 대여 기록 정보를 담은 CAR_RENTAL_COMPANY_RENTAL_HISTORY 테이블입니다. CAR_RENTAL_COMPANY_RENTAL_HISTORY 테이블은 아래와 같은 구조로 되어있으며, HISTORY_ID, CAR_ID, START_DATE, END_DATE 는 각각 자동차 대여 기록 ID, 자동차 ID, 대여 시작일, 대여 종료일을 나타냅니다.
+
+### 문제
+CAR_RENTAL_COMPANY_RENTAL_HISTORY 테이블에서 평균 대여 기간이 7일 이상인 자동차들의 자동차 ID와 평균 대여 기간(컬럼명: AVERAGE_DURATION) 리스트를 출력하는 SQL문을 작성해주세요. 평균 대여 기간은 소수점 두번째 자리에서 반올림하고, 결과는 평균 대여 기간을 기준으로 내림차순 정렬해주시고, 평균 대여 기간이 같으면 자동차 ID를 기준으로 내림차순 정렬해주세요.
+
+### 정답 쿼리
+
+DATEDIFF값에 +1을 해주어야 함.
+
+```sql
+SELECT
+    CAR_ID,
+    ROUND(AVG(DATEDIFF(END_DATE, START_DATE)+1),1) AS AVERAGE_DURATION
+FROM CAR_RENTAL_COMPANY_RENTAL_HISTORY
+GROUP BY CAR_ID
+HAVING AVG(DATEDIFF(END_DATE, START_DATE)+1) >= 7
+ORDER BY
+    AVERAGE_DURATION DESC,
+    CAR_ID DESC;
+```
+
+[DATEDIFF만 적용한 경우 나오는 결과]   
+![결과](/2025_W/img/4-2.PNG)

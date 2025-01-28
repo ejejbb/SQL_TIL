@@ -322,5 +322,15 @@ ORDER BY
     CAR_ID DESC;
 ```
 
-[DATEDIFF만 적용한 경우 나오는 결과]   
+[DATEDIFF만 적용한 경우 나오는 결과]
+
++1을 추가해야 함을 알 수 있음
+
+```SQL
+SELECT
+    *,
+    DATEDIFF(END_DATE, START_DATE) AS DIFF
+FROM CAR_RENTAL_COMPANY_RENTAL_HISTORY
+ORDER BY DIFF;
+```
 ![결과](/2025_W/img/4-2.PNG)

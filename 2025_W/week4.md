@@ -6,6 +6,8 @@ LV.2(+ 정답률 낮은 LV.1) 클리어, LV.3 4문제
 
 ## LV.2 ~ Q14
 
+논의 할 문제 : 1,2,6,7,9,11,12,14
+
 ## Q1. 가격대 별 상품 개수 구하기
 > FLOOR
 
@@ -370,9 +372,9 @@ ORDER BY
 
 
 ## Q11. 분기별 분화된 대장균의 개체 수 구하기
-> 
+> WITH, CEIL
 
-#### 날짜: 0128
+#### 날짜: 0129
 
 ### 문제설명
 대장균들은 일정 주기로 분화하며, 분화를 시작한 개체를 부모 개체, 분화가 되어 나온 개체를 자식 개체라고 합니다.
@@ -385,8 +387,242 @@ ORDER BY
 
 ### 정답 쿼리
 
-처음에 ORDER BY 에 TOTAL_DISTANCE DESC 를 넣어서 틀렸다고 떴다. ORDER BY 는 숫자 기준으로 정렬해야 한다.
+GROUP BY 에 QUARTER 을 넣어주기 위해 WITH 문을 사용
 
 ```sql
+WITH A AS(
+    SELECT
+    *,
+    CONCAT(CEIL((MONTH(DIFFERENTIATION_DATE)/3)), 'Q') AS QUARTER
+FROM ECOLI_DATA)
+SELECT
+    QUARTER,
+    COUNT(*) AS ECOLI_COUNT
+FROM A
+GROUP BY QUARTER
+ORDER BY QUARTER;
+```
 
+
+## Q12. 업그레이드 된 아이템 구하기
+> 중복서브쿼리
+
+#### 날짜: 0129
+
+### 문제설명
+ITEM_INFO 테이블은 다음과 같으며, ITEM_ID, ITEM_NAME, RARITY, PRICE는 각각 아이템 ID, 아이템 명, 아이템의 희귀도, 아이템의 가격을 나타냅니다.
+
+ITEM_TREE 테이블은 다음과 같으며, ITEM_ID, PARENT_ITEM_ID는 각각 아이템 ID, PARENT 아이템의 ID를 나타냅니다.
+
+단, 각 아이템들은 오직 하나의 PARENT 아이템 ID를 가지며, ROOT 아이템의 PARENT 아이템 ID는 NULL 입니다.
+
+ROOT 아이템이 없는 경우는 존재하지 않습니다.
+
+### 문제
+아이템의 희귀도가 'RARE'인 아이템들의 모든 다음 업그레이드 아이템의 아이템 ID(ITEM_ID), 아이템 명(ITEM_NAME), 아이템의 희귀도(RARITY)를 출력하는 SQL 문을 작성해 주세요. 이때 결과는 아이템 ID를 기준으로 내림차순 정렬주세요.
+
+### 정답 쿼리
+
+```sql
+SELECT
+    ITEM_ID,
+    ITEM_NAME,
+    RARITY
+FROM ITEM_INFO
+WHERE ITEM_ID IN (
+    (SELECT
+        ITEM_ID
+    FROM ITEM_TREE
+    WHERE PARENT_ITEM_ID IN (
+        SELECT
+            ITEM_ID
+        FROM ITEM_INFO
+        WHERE RARITY = 'RARE')))
+ORDER BY
+    ITEM_ID DESC;
+```
+
+### 문제 풀이 과정
+
+단계별로 하나씩 풀어가보자.
+
+#### 1. RARITY = 'RARE' 인 ITEM 선택하기
+```sql
+SELECT
+    ITEM_ID
+FROM ITEM_INFO
+WHERE RARITY = 'RARE'
+```
+결과: item_id : 0,1,3,4
+
+#### 2. PARENT_ITEM_ID 에 1에서 구한 ITEM_ID가 있는 것들 선택하기
+```sql
+SELECT
+    ITEM_ID
+FROM ITEM_TREE
+WHERE PARENT_ITEM_ID IN (
+    SELECT
+        ITEM_ID
+    FROM ITEM_INFO
+    WHERE RARITY = 'RARE')
+```
+결과: item_id : 1,2,3,4
+
+#### 3. 2에서 구한 ITEM_ID와 일치하는 것들 선택하기
+```sql
+SELECT
+    ITEM_ID,
+    ITEM_NAME,
+    RARITY
+FROM ITEM_INFO
+WHERE ITEM_ID IN (
+    (SELECT
+        ITEM_ID
+    FROM ITEM_TREE
+    WHERE PARENT_ITEM_ID IN (
+        SELECT
+            ITEM_ID
+        FROM ITEM_INFO
+        WHERE RARITY = 'RARE')))
+ORDER BY
+    ITEM_ID DESC;
+```
+
+
+## Q13. 연도별 대장균 크기의 편차 구하기
+> YEAR, MAX, 서브쿼리
+
+#### 날짜: 0129
+
+### 문제설명
+대장균들은 일정 주기로 분화하며, 분화를 시작한 개체를 부모 개체, 분화가 되어 나온 개체를 자식 개체라고 합니다.
+
+다음은 실험실에서 배양한 대장균들의 정보를 담은 ECOLI_DATA 테이블입니다. ECOLI_DATA 테이블의 구조는 다음과 같으며, ID, PARENT_ID, SIZE_OF_COLONY, DIFFERENTIATION_DATE, GENOTYPE 은 각각 대장균 개체의 ID, 부모 개체의 ID, 개체의 크기, 분화되어 나온 날짜, 개체의 형질을 나타냅니다.
+
+최초의 대장균 개체의 PARENT_ID 는 NULL 값입니다.
+
+### 문제
+분화된 연도(YEAR), 분화된 연도별 대장균 크기의 편차(YEAR_DEV), 대장균 개체의 ID(ID) 를 출력하는 SQL 문을 작성해주세요. 분화된 연도별 대장균 크기의 편차는 분화된 연도별 가장 큰 대장균의 크기 - 각 대장균의 크기로 구하며 결과는 연도에 대해 오름차순으로 정렬하고 같은 연도에 대해서는 대장균 크기의 편차에 대해 오름차순으로 정렬해주세요.
+
+### 정답 쿼리
+
+JOIN 할 때 타입을 잘 맞춰주어야 함. 처음에 `ON A.YEAR(DIFFERENTIATION_DATE) = B.YEAR`을 사용했었는데 YEAR함수를 바깥에서 씌워주어야 함을 알게 됨.
+
+```sql
+SELECT
+    YEAR,
+    MAX_SIZE-SIZE_OF_COLONY AS YEAR_DEV,
+    ID
+FROM ECOLI_DATA AS A
+LEFT JOIN (
+        SELECT
+            YEAR(DIFFERENTIATION_DATE) AS YEAR,
+            MAX(SIZE_OF_COLONY) AS MAX_SIZE
+        FROM ECOLI_DATA
+        GROUP BY YEAR(DIFFERENTIATION_DATE)) AS B
+ON YEAR(A.DIFFERENTIATION_DATE) = B.YEAR
+ORDER BY YEAR, YEAR_DEV;
+```
+
+## Q14. 부모의 형질을 모두 가지는 대장균 찾기
+> 비트연산자, WITH, 서브쿼리
+
+#### 날짜: 0129
+
+### 문제설명
+대장균들은 일정 주기로 분화하며, 분화를 시작한 개체를 부모 개체, 분화가 되어 나온 개체를 자식 개체라고 합니다.
+
+다음은 실험실에서 배양한 대장균들의 정보를 담은 ECOLI_DATA 테이블입니다. ECOLI_DATA 테이블의 구조는 다음과 같으며, ID, PARENT_ID, SIZE_OF_COLONY, DIFFERENTIATION_DATE, GENOTYPE 은 각각 대장균 개체의 ID, 부모 개체의 ID, 개체의 크기, 분화되어 나온 날짜, 개체의 형질을 나타냅니다.
+
+최초의 대장균 개체의 PARENT_ID 는 NULL 값입니다.
+
+### 문제
+부모의 형질을 모두 보유한 대장균의 ID(ID), 대장균의 형질(GENOTYPE), 부모 대장균의 형질(PARENT_GENOTYPE)을 출력하는 SQL 문을 작성해주세요. 이때 결과는 ID에 대해 오름차순 정렬해주세요.
+
+### 정답 쿼리
+
+```sql
+WITH C AS (
+    SELECT
+        B.PARENT_ID,
+        GENOTYPE AS PARENT_GENOTYPE
+    FROM ECOLI_DATA AS A
+    RIGHT JOIN (
+        (SELECT DISTINCT PARENT_ID
+        FROM ECOLI_DATA
+        WHERE PARENT_ID IS NOT NULL)) AS B
+    ON A.ID=B.PARENT_ID)
+SELECT
+    ID,
+    GENOTYPE,
+    PARENT_GENOTYPE
+FROM ECOLI_DATA AS A
+LEFT JOIN C
+ON A.PARENT_ID = C.PARENT_ID
+WHERE (GENOTYPE & PARENT_GENOTYPE) = PARENT_GENOTYPE
+ORDER BY ID;
+```
+
+### 문제 풀이 과정
+```sql
+WITH C AS (
+    SELECT
+        B.PARENT_ID,
+        GENOTYPE AS PARENT_GENOTYPE
+    FROM ECOLI_DATA AS A
+    RIGHT JOIN (
+        (SELECT DISTINCT PARENT_ID
+        FROM ECOLI_DATA
+        WHERE PARENT_ID IS NOT NULL)) AS B
+    ON A.ID=B.PARENT_ID)
+SELECT
+    ID,
+    A.PARENT_ID,
+    GENOTYPE,
+    PARENT_GENOTYPE
+FROM ECOLI_DATA AS A
+LEFT JOIN C
+ON A.PARENT_ID = C.PARENT_ID
+```
+[실행 결과]   
+![결과](/2025_W/img/4-4.PNG)
+
+이 상태에서 `WHERE (GENOTYPE & PARENT_GENOTYPE) = PARENT_GENOTYPE` 이 조건 걸어주면 됨.
+
+
+## LV.1 ~ Q15,16
+
+## Q15. 자동차 대여 기록에서 장기/단기 대여 구분하기
+> WITH, DATEDIFF, LIKE, DATE_FORMAT
+
+#### 날짜: 0129
+
+### 문제설명
+다음은 어느 자동차 대여 회사의 자동차 대여 기록 정보를 담은 CAR_RENTAL_COMPANY_RENTAL_HISTORY 테이블입니다. CAR_RENTAL_COMPANY_RENTAL_HISTORY 테이블은 아래와 같은 구조로 되어있으며, HISTORY_ID, CAR_ID, START_DATE, END_DATE 는 각각 자동차 대여 기록 ID, 자동차 ID, 대여 시작일, 대여 종료일을 나타냅니다.
+
+### 문제
+CAR_RENTAL_COMPANY_RENTAL_HISTORY 테이블에서 대여 시작일이 2022년 9월에 속하는 대여 기록에 대해서 대여 기간이 30일 이상이면 '장기 대여' 그렇지 않으면 '단기 대여' 로 표시하는 컬럼(컬럼명: RENT_TYPE)을 추가하여 대여기록을 출력하는 SQL문을 작성해주세요. 결과는 대여 기록 ID를 기준으로 내림차순 정렬해주세요.
+
+### 정답 쿼리
+
+START_DATE와 END_DATE의 경우 예시의 데이트 포맷과 동일해야 정답처리 됩니다. <- 이거 때문에 WITH문 작성해야 해서 귀찮
+
+```sql
+WITH A AS (
+    SELECT
+        *,
+        CASE
+            WHEN (DATEDIFF(END_DATE, START_DATE)+1) >= 30 THEN '장기 대여'
+            ELSE '단기 대여' END AS RENT_TYPE
+    FROM CAR_RENTAL_COMPANY_RENTAL_HISTORY
+    WHERE START_DATE LIKE '2022-09-%')
+SELECT
+    HISTORY_ID,
+    CAR_ID,
+    DATE_FORMAT(START_DATE, '%Y-%m-%d') AS START_DATE,
+    DATE_FORMAT(END_DATE, '%Y-%m-%d') AS END_DATE,
+    RENT_TYPE
+FROM A
+ORDER BY
+    HISTORY_ID DESC;
 ```

@@ -626,3 +626,154 @@ FROM A
 ORDER BY
     HISTORY_ID DESC;
 ```
+
+## Q16. 조건에 부합하는 중고거래 댓글 조회하기
+> (INNER) JOIN
+
+#### 날짜: 0130
+
+### 문제설명
+USED_GOODS_BOARD 테이블은 다음과 같으며 BOARD_ID, WRITER_ID, TITLE, CONTENTS, PRICE, CREATED_DATE, STATUS, VIEWS은 게시글 ID, 작성자 ID, 게시글 제목, 게시글 내용, 가격, 작성일, 거래상태, 조회수를 의미합니다.
+
+USED_GOODS_REPLY 테이블은 다음과 같으며 REPLY_ID, BOARD_ID, WRITER_ID, CONTENTS, CREATED_DATE는 각각 댓글 ID, 게시글 ID, 작성자 ID, 댓글 내용, 작성일을 의미합니다.
+
+### 문제
+USED_GOODS_BOARD와 USED_GOODS_REPLY 테이블에서 2022년 10월에 작성된 게시글 제목, 게시글 ID, 댓글 ID, 댓글 작성자 ID, 댓글 내용, 댓글 작성일을 조회하는 SQL문을 작성해주세요. 결과는 댓글 작성일을 기준으로 오름차순 정렬해주시고, 댓글 작성일이 같다면 게시글 제목을 기준으로 오름차순 정렬해주세요.
+
+### 정답 쿼리
+
+'2022년 10월에 작성된 게시글 제목, 게시글 ID, 댓글 ID, 댓글 작성자 ID, 댓글 내용, 댓글 작성일을 조회'하라는 내용에서 '2022년 10월에 작성된'이 게시글에만 적용되었다고 생각하여 LEFT JOIN을 사용했더니 댓글이 달리지 않은 것들도 출력됨. 아마 '2022년 10월에 작성된'이 게시글에만 적용된 것은 맞으나 '게시글 제목, 게시글 ID, 댓글 ID, 댓글 작성자 ID, 댓글 내용, 댓글 작성일'이 모두 NULL 값이 아닌 것을 출력하라는 의미였을 것임 -> (INNER) JOIN 사용
+
+```sql
+SELECT
+    TITLE,
+    A.BOARD_ID,
+    REPLY_ID,
+    B.WRITER_ID,
+    B.CONTENTS,
+    DATE_FORMAT(B.CREATED_DATE, '%Y-%m-%d') AS CREATED_DATE
+FROM USED_GOODS_BOARD AS A
+JOIN USED_GOODS_REPLY AS B
+ON A.BOARD_ID = B.BOARD_ID
+WHERE A.CREATED_DATE LIKE '2022-10-%'
+ORDER BY B.CREATED_DATE, TITLE;
+```
+
+
+## LV.3 ~ Q17-Q20
+
+## Q17. 있었는데요 없었습니다
+> 날짜 부등호
+
+#### 날짜: 0130
+
+### 문제설명
+ANIMAL_INS 테이블은 동물 보호소에 들어온 동물의 정보를 담은 테이블입니다. ANIMAL_INS 테이블 구조는 다음과 같으며, ANIMAL_ID, ANIMAL_TYPE, DATETIME, INTAKE_CONDITION, NAME, SEX_UPON_INTAKE는 각각 동물의 아이디, 생물 종, 보호 시작일, 보호 시작 시 상태, 이름, 성별 및 중성화 여부를 나타냅니다.
+
+ANIMAL_OUTS 테이블은 동물 보호소에서 입양 보낸 동물의 정보를 담은 테이블입니다. ANIMAL_OUTS 테이블 구조는 다음과 같으며, ANIMAL_ID, ANIMAL_TYPE, DATETIME, NAME, SEX_UPON_OUTCOME는 각각 동물의 아이디, 생물 종, 입양일, 이름, 성별 및 중성화 여부를 나타냅니다. ANIMAL_OUTS 테이블의 ANIMAL_ID는 ANIMAL_INS의 ANIMAL_ID의 외래 키입니다.
+
+### 문제
+관리자의 실수로 일부 동물의 입양일이 잘못 입력되었습니다. 보호 시작일보다 입양일이 더 빠른 동물의 아이디와 이름을 조회하는 SQL문을 작성해주세요. 이때 결과는 보호 시작일이 빠른 순으로 조회해야합니다.
+
+### 정답 쿼리
+
+```sql
+SELECT
+    A.ANIMAL_ID,
+    A.NAME
+FROM ANIMAL_INS AS A
+LEFT JOIN ANIMAL_OUTS AS B
+ON A.ANIMAL_ID = B.ANIMAL_ID
+WHERE A.DATETIME > B.DATETIME
+ORDER BY A.DATETIME;
+```
+
+## Q18. 부서별 평균 연봉 조회하기
+> ROUND, AVG
+
+#### 날짜: 0130
+
+### 문제설명
+HR_DEPARTMENT 테이블은 회사의 부서 정보를 담은 테이블입니다. HR_DEPARTMENT 테이블의 구조는 다음과 같으며 DEPT_ID, DEPT_NAME_KR, DEPT_NAME_EN, LOCATION은 각각 부서 ID, 국문 부서명, 영문 부서명, 부서 위치를 의미합니다.
+
+HR_EMPLOYEES 테이블은 회사의 사원 정보를 담은 테이블입니다. HR_EMPLOYEES 테이블의 구조는 다음과 같으며 EMP_NO, EMP_NAME, DEPT_ID, POSITION, EMAIL, COMP_TEL, HIRE_DATE, SAL은 각각 사번, 성명, 부서 ID, 직책, 이메일, 전화번호, 입사일, 연봉을 의미합니다.
+
+### 문제
+HR_DEPARTMENT와 HR_EMPLOYEES 테이블을 이용해 부서별 평균 연봉을 조회하려 합니다. 부서별로 부서 ID, 영문 부서명, 평균 연봉을 조회하는 SQL문을 작성해주세요.
+
+평균연봉은 소수점 첫째 자리에서 반올림하고 컬럼명은 AVG_SAL로 해주세요.   
+결과는 부서별 평균 연봉을 기준으로 내림차순 정렬해주세요.
+
+### 정답 쿼리
+
+```sql
+SELECT
+    B.DEPT_ID,
+    A.DEPT_NAME_EN,
+    ROUND(AVG(SAL),0) AS AVG_SAL
+FROM HR_DEPARTMENT AS A
+RIGHT JOIN HR_EMPLOYEES AS B
+ON A.DEPT_ID = B.DEPT_ID
+GROUP BY B.DEPT_ID, A.DEPT_NAME_EN
+ORDER BY
+    AVG_SAL DESC;
+```
+
+
+## Q19. 조건별로 분류하여 주문상태 출력하기
+> CASE WHEN
+
+#### 날짜: 0130
+
+### 문제설명
+다음은 식품공장의 주문정보를 담은 FOOD_ORDER 테이블입니다. FOOD_ORDER 테이블은 다음과 같으며 ORDER_ID, PRODUCT_ID, AMOUNT, PRODUCE_DATE, IN_DATE,OUT_DATE,FACTORY_ID, WAREHOUSE_ID는 각각 주문 ID, 제품 ID, 주문양, 생산일자, 입고일자, 출고일자, 공장 ID, 창고 ID를 의미합니다.
+
+### 문제
+FOOD_ORDER 테이블에서 2022년 5월 1일을 기준으로 주문 ID, 제품 ID, 출고일자, 출고여부를 조회하는 SQL문을 작성해주세요. 출고여부는 2022년 5월 1일까지 출고완료로 이 후 날짜는 출고 대기로 미정이면 출고미정으로 출력해주시고, 결과는 주문 ID를 기준으로 오름차순 정렬해주세요.
+
+### 정답 쿼리
+
+```sql
+SELECT
+    ORDER_ID,
+    PRODUCT_ID,
+    DATE_FORMAT(OUT_DATE, '%Y-%m-%d'),
+    CASE
+        WHEN OUT_DATE <= '2022-05-01' THEN '출고완료'
+        WHEN OUT_DATE > '2022-05-01' THEN '출고대기'
+        ELSE '출고미정'
+    END AS 출고여부
+FROM FOOD_ORDER
+ORDER BY ORDER_ID;
+```
+
+
+## Q20. 조회수가 가장 많은 중고거래 게시판의 첨부파일 조회하기
+> CONCAT, WHERE
+
+#### 날짜: 0130
+
+### 문제설명
+다음은 중고거래 게시판 정보를 담은 USED_GOODS_BOARD 테이블과 중고거래 게시판 첨부파일 정보를 담은 USED_GOODS_FILE 테이블입니다. USED_GOODS_BOARD 테이블은 다음과 같으며 BOARD_ID, WRITER_ID, TITLE, CONTENTS, PRICE, CREATED_DATE, STATUS, VIEWS은 게시글 ID, 작성자 ID, 게시글 제목, 게시글 내용, 가격, 작성일, 거래상태, 조회수를 의미합니다.
+
+USED_GOODS_FILE 테이블은 다음과 같으며 FILE_ID, FILE_EXT, FILE_NAME, BOARD_ID는 각각 파일 ID, 파일 확장자, 파일 이름, 게시글 ID를 의미합니다.
+
+### 문제
+USED_GOODS_BOARD와 USED_GOODS_FILE 테이블에서 조회수가 가장 높은 중고거래 게시물에 대한 첨부파일 경로를 조회하는 SQL문을 작성해주세요. 첨부파일 경로는 FILE ID를 기준으로 내림차순 정렬해주세요. 기본적인 파일경로는 /home/grep/src/ 이며, 게시글 ID를 기준으로 디렉토리가 구분되고, 파일이름은 파일 ID, 파일 이름, 파일 확장자로 구성되도록 출력해주세요. 조회수가 가장 높은 게시물은 하나만 존재합니다.
+
+### 정답 쿼리
+
+중간에 WHERE 대신 HAVING MAX(VIEWS)로 조건을 거는 경우 결과값이 하나만 출력됨.
+
+```sql
+SELECT
+    CONCAT('/home/grep/src/', B.BOARD_ID, '/', FILE_ID, FILE_NAME, FILE_EXT) AS FILE_PATH
+FROM USED_GOODS_BOARD AS A
+RIGHT JOIN USED_GOODS_FILE AS B
+ON A.BOARD_ID = B.BOARD_ID
+WHERE VIEWS = (
+    SELECT MAX(VIEWS)
+    FROM USED_GOODS_BOARD)
+ORDER BY
+    FILE_ID DESC;
+```

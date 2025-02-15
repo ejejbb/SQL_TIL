@@ -4,9 +4,7 @@ LV.4 7문제 + LV.5 1문제
 
 #### [문제1~8_링크](https://school.programmers.co.kr/learn/challenges?order=acceptance_desc&languages=mysql&page=1&levels=4%2C5)
 
-## LV.4 ~ Q7
-
-⭐⭐ 문제 다시 풀어보기
+## LV.4 ~ Q7, LV.5 Q8
 
 ## Q1. 서울에 위치한 식당 목록 출력하기
 > 
@@ -267,5 +265,19 @@ USER_INFO 테이블과 ONLINE_SALE 테이블에서 2021년에 가입한 전체 �
 ### 정답 쿼리
 
 ```sql
+WITH A AS (
+    SELECT
+        *
+    FROM USER_INFO
+    WHERE YEAR(JOINED)=2021)
 
+SELECT
+    YEAR(SALES_DATE) AS YEAR,
+    MONTH(SALES_DATE) AS MONTH,
+    COUNT(DISTINCT USER_ID) AS PURCHASED_USERS,
+    ROUND(COUNT(DISTINCT USER_ID)/(SELECT COUNT(DISTINCT USER_ID) FROM A),1) AS PUCHASED_RATIO
+FROM ONLINE_SALE AS B
+WHERE USER_ID IN (SELECT USER_ID FROM A)
+GROUP BY MONTH(SALES_DATE)
+ORDER BY YEAR, MONTH;
 ```

@@ -127,7 +127,7 @@ COALESCE(COUNT(B.DATETIME), 0) AS COUNT
 
 
 ## Q3. 특정 세대의 대장균 찾기
-> 
+> WITH RECURSIVE
 
 #### 날짜: 0303
 
@@ -136,35 +136,99 @@ COALESCE(COUNT(B.DATETIME), 0) AS COUNT
 
 ### 정답 쿼리
 
-```sql
-
+```SQL
+[1번. 재귀식 사용하지 않고 JOIN 2번으로 해결]
+SELECT D.ID
+FROM ECOLI_DATA AS A
+JOIN ECOLI_DATA AS B
+    ON A.ID = B.PARENT_ID
+JOIN ECOLI_DATA AS D
+    ON B.ID = D.PARENT_ID
+WHERE A.PARENT_ID IS NULL
+ORDER BY ID;
 ```
 
-## Q4. 우유와 요거트가 담긴 장바구니
-> GROUP_CONCAT
+```sql
+[2번. 재귀식 사용]
+WITH RECURSIVE C AS (
+    SELECT ID, PARENT_ID, 1 AS LEVEL
+    FROM ECOLI_DATA 
+    WHERE PARENT_ID IS NULL
+    UNION ALL
+    SELECT E.ID, E.PARENT_ID, C.LEVEL + 1
+    FROM ECOLI_DATA AS E
+    JOIN C ON E.PARENT_ID = C.ID
+)
+SELECT ID
+FROM C
+WHERE LEVEL = 3
+ORDER BY ID;
+```
 
-#### 날짜: 0215
+### 재귀식 작동 순서
+최상위 부모에서 시작해서 자식 노드를 따라가면서 트리 구조를 탐색하는 방식
+
+> ✅ **1단계: 최상위 부모 찾기 (Anchor Part)**
+```sql
+SELECT
+    ID,
+    PARENT_ID,
+    1 AS LEVEL
+FROM ECOLI_DATA 
+WHERE PARENT_ID IS NULL
+```
+- `PARENT_ID IS NULL`인 데이터를 찾아서 **루트 노드(최상위 부모)**를 가져옴.
+- `LEVEL = 1`을 부여해서 **이 노드가 1세대임을 표시**.
+
+> ✅ **2단계: 부모-자식 관계를 재귀적으로 찾기 (Recursive Part)**
+```sql
+SELECT
+    E.ID,
+    E.PARENT_ID,
+    C.LEVEL + 1
+FROM ECOLI_DATA AS E
+JOIN C
+ON E.PARENT_ID = C.ID
+```
+- `E.PARENT_ID = C.ID`를 기준으로 **자식 노드를 찾음**.
+- 찾은 자식 노드는 부모보다 한 단계 아래 (`LEVEL + 1`)로 설정됨.
+- 이 과정이 계속 반복되어 **손자, 증손자 등 모든 세대를 찾아감**.
+
+---
+
+### 🔍 **`JOIN`, `UNION`, `UNION ALL`의 차이점 정리표**
+
+| 연산자      | 기능 | 사용 목적 | 동작 방식 | 중복 처리 | 주요 특징 |
+|------------|------|----------|----------|----------|----------|
+| **JOIN** | 두 개 이상의 테이블을 결합 | 테이블 간 관계 조회 | `ON` 조건을 만족하는 행들만 결합 | 중복된 행이 있을 수 있음 | 한 번의 `JOIN`으로 한 단계의 관계만 조회 가능 |
+| **UNION** | 여러 `SELECT` 결과를 합침 | 동일한 구조의 데이터를 합칠 때 | 두 개 이상의 `SELECT` 결과를 병합 | ✅ **중복 제거 (`DISTINCT`)** | 중복 제거로 인해 성능이 `UNION ALL`보다 느림 |
+| **UNION ALL** | 여러 `SELECT` 결과를 합침 | 동일한 구조의 데이터를 합칠 때 | 두 개 이상의 `SELECT` 결과를 병합 | ❌ **중복 제거 없음** | `UNION`보다 빠르며, 재귀적 `WITH RECURSIVE`에서 데이터 누적 시 사용 |
+
+---
+
+> 🔥 **JOIN vs UNION vs UNION ALL 언제 사용해야 할까?**
+
+| 사용 목적 | 추천 연산자 |
+|-----------|------------|
+| **두 개 이상의 테이블을 결합하여 데이터 조회** | `JOIN` |
+| **여러 `SELECT` 결과를 하나로 합치되, 중복 제거가 필요** | `UNION` |
+| **여러 `SELECT` 결과를 하나로 합치되, 중복을 유지해야 함** | `UNION ALL` |
+| **재귀 쿼리에서 데이터를 계속 누적해야 함 (`WITH RECURSIVE`)** | `UNION ALL` |
+
+---
+
+## Q4. 자동차 대여 기록 별 대여 금액 구하기
+> 
+
+#### 날짜: 0303
 
 ### 문제
-데이터 분석 팀에서는 우유(Milk)와 요거트(Yogurt)를 동시에 구입한 장바구니가 있는지 알아보려 합니다. 우유와 요거트를 동시에 구입한 장바구니의 아이디를 조회하는 SQL 문을 작성해주세요. 이때 결과는 장바구니의 아이디 순으로 나와야 합니다.
+CAR_RENTAL_COMPANY_CAR 테이블과 CAR_RENTAL_COMPANY_RENTAL_HISTORY 테이블과 CAR_RENTAL_COMPANY_DISCOUNT_PLAN 테이블에서 자동차 종류가 '트럭'인 자동차의 대여 기록에 대해서 대여 기록 별로 대여 금액(컬럼명: FEE)을 구하여 대여 기록 ID와 대여 금액 리스트를 출력하는 SQL문을 작성해주세요. 결과는 대여 금액을 기준으로 내림차순 정렬하고, 대여 금액이 같은 경우 대여 기록 ID를 기준으로 내림차순 정렬해주세요.
 
 ### 정답 쿼리
 
 ```sql
-WITH A AS (
-    SELECT
-        CART_ID,
-        GROUP_CONCAT(NAME SEPARATOR ', ') AS NAME
-    FROM CART_PRODUCTS
-    GROUP BY CART_ID
-    )
 
-SELECT
-    CART_ID
-FROM A
-WHERE NAME LIKE '%Milk%'
-    AND NAME LIKE '%Yogurt%'
-ORDER BY CART_ID;
 ```
 
 ### 문제 풀이 과정

@@ -78,7 +78,7 @@ ORDER BY HOUR;
 
 ### SQL 문법, 함수 정리
 > 1. WITH RECURSICE
-- **재귀적인 CTE (Common Table Expression)**를 생성하는 SQL 문법
+- **재귀적인 CTE (Common Table Expression)** 를 생성하는 SQL 문법
 - 자기 자신을 참조하면서 반복적으로 데이터를 생성
 ```
 [위의 쿼리로부터 본 WITH RECURSIVE의 동작 과정]

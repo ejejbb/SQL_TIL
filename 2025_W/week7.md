@@ -218,117 +218,117 @@ ON E.PARENT_ID = C.ID
 ---
 
 ## Q4. 자동차 대여 기록 별 대여 금액 구하기
-> 
+> CASE WHEN, COALESCE
 
-#### 날짜: 0303
+#### 날짜: 0302
 
 ### 문제
 CAR_RENTAL_COMPANY_CAR 테이블과 CAR_RENTAL_COMPANY_RENTAL_HISTORY 테이블과 CAR_RENTAL_COMPANY_DISCOUNT_PLAN 테이블에서 자동차 종류가 '트럭'인 자동차의 대여 기록에 대해서 대여 기록 별로 대여 금액(컬럼명: FEE)을 구하여 대여 기록 ID와 대여 금액 리스트를 출력하는 SQL문을 작성해주세요. 결과는 대여 금액을 기준으로 내림차순 정렬하고, 대여 금액이 같은 경우 대여 기록 ID를 기준으로 내림차순 정렬해주세요.
 
 ### 정답 쿼리
 
-```sql
-
-```
-
-### 문제 풀이 과정
-![6.1](/2025_W/img/6-1.PNG)
-
-GROUP BY를 했을 때 하나의 값만 남기고 나머지 값들은 삭제된 것을 확인할 수 있음.
-
-✅ GROUP BY를 했을 때 서로 다른 값들을 하나의 행에 합쳐서 표시하는 방법: `GROUP_CONCAT()`   
-→ **하나의 그룹 내에서 여러 값을 쉼표(또는 다른 구분자)로 합쳐서 하나의 문자열로 출력**할 수 있다.
-
-
-[예제]
-
-같은 `category` 그룹의 `product_name`들을 `,`로 연결하여 하나의 행에 출력
+`일일대여금액 * 대여일수 * (1-할인율)` 을 했어야 했는데 대여일수를 곱하지 않아 계속 오류가 떴음. 문제 잘 확인하기!! 
 
 ```sql
-SELECT 
-    category, 
-    GROUP_CONCAT(product_name SEPARATOR ', ') AS products
-FROM food_product
-GROUP BY category;
-```
-[출력 결과]
-| category | products |
-|----------|---------|
-| 과자      | 초코파이, 새우깡, 감자칩 |
-| 김치      | 배추김치, 깍두기, 총각김치 |
-| 음료      | 콜라, 사이다, 오렌지주스 |
-
-
-![6.2](/2025_W/img/6-2.PNG)
-
-
-## Q5. 주문량이 많은 아이스크림들 조회하기
-> 
-
-#### 날짜: 0215
-
-### 문제
-7월 아이스크림 총 주문량과 상반기의 아이스크림 총 주문량을 더한 값이 큰 순서대로 상위 3개의 맛을 조회하는 SQL 문을 작성해주세요.
-
-### 정답 쿼리
-
-JULY 테이블에 FLAVOR이 중복되므로 먼저 그룹화 해준 뒤 JOIN
-
-```sql
-SELECT
-    FLAVOR
-FROM FIRST_HALF AS A
-JOIN
-    (SELECT
-        FLAVOR,
-        SUM(TOTAL_ORDER) AS TOTAL_ORDER
-    FROM JULY
-    GROUP BY FLAVOR) AS B
-USING (FLAVOR)
-GROUP BY FLAVOR
-ORDER BY (A.TOTAL_ORDER + B.TOTAL_ORDER) DESC
-LIMIT 3;
-```
-
-
-## Q6. 연간 평가점수에 해당하는 평가 등급 및 성과금 조회하기
-> 
-
-#### 날짜: 0215
-
-### 문제
-HR_DEPARTMENT, HR_EMPLOYEES, HR_GRADE 테이블을 이용해 사원별 성과금 정보를 조회하려합니다. 평가 점수별 등급과 등급에 따른 성과금 정보가 아래와 같을 때, 사번, 성명, 평가 등급, 성과금을 조회하는 SQL문을 작성해주세요.
-
-평가등급의 컬럼명은 GRADE로, 성과금의 컬럼명은 BONUS로 해주세요.   
-결과는 사번 기준으로 오름차순 정렬해주세요.
-
-### 정답 쿼리
-
-```sql
-SELECT
-    E.EMP_NO,
-    EMP_NAME,
-    CASE
-        WHEN SCORE >= 96 THEN 'S'
-        WHEN SCORE >= 90 THEN 'A'
-        WHEN SCORE >= 80 THEN 'B'
-        ELSE 'C'
-    END AS GRADE,
-    CASE
-        WHEN SCORE >= 96 THEN (SAL*0.2)
-        WHEN SCORE >= 90 THEN (SAL*0.15)
-        WHEN SCORE >= 80 THEN (SAL*0.1)
-        ELSE 0
-    END AS BONUS
-FROM HR_EMPLOYEES AS E
-JOIN (
+WITH C AS (
     SELECT
-        EMP_NO,
-        AVG(SCORE) AS SCORE
-    FROM HR_GRADE
-    GROUP BY EMP_NO) AS G
-USING (EMP_NO)
-ORDER BY E.EMP_NO;
+        A.CAR_ID,
+        CAR_TYPE,
+        DAILY_FEE,
+        HISTORY_ID,
+        START_DATE,
+        END_DATE,
+        CASE 
+            WHEN DATEDIFF(B.END_DATE, B.START_DATE) + 1 >= 90 THEN '90일 이상'
+            WHEN DATEDIFF(B.END_DATE, B.START_DATE) + 1 >= 30 THEN '30일 이상'
+            WHEN DATEDIFF(B.END_DATE, B.START_DATE) + 1 >= 7 THEN '7일 이상'
+            ELSE '할인 없음'
+        END AS DURATION_TYPE
+    FROM CAR_RENTAL_COMPANY_CAR AS A
+    JOIN CAR_RENTAL_COMPANY_RENTAL_HISTORY AS B
+    USING (CAR_ID)
+    WHERE CAR_TYPE = '트럭'
+)
+SELECT
+    HISTORY_ID,
+    ROUND(DAILY_FEE * (DATEDIFF(C.END_DATE, C.START_DATE) + 1) * (1-COALESCE(DISCOUNT_RATE,0)/100), 0) AS FEE
+FROM C
+LEFT JOIN (
+    SELECT *
+    FROM CAR_RENTAL_COMPANY_DISCOUNT_PLAN
+    WHERE CAR_TYPE = '트럭') AS D
+USING (DURATION_TYPE)
+ORDER BY
+    FEE DESC,
+    HISTORY_ID DESC;
+```
+
+## Q5. FrontEnd 개발자 찾기
+> WHERE EXISTS, 비트연산자
+
+#### 날짜: 0303
+
+### 문제
+DEVELOPERS 테이블에서 Front End 스킬을 가진 개발자의 정보를 조회하려 합니다. 조건에 맞는 개발자의 ID, 이메일, 이름, 성을 조회하는 SQL 문을 작성해 주세요.
+결과는 ID를 기준으로 오름차순 정렬해 주세요.
+
+### 정답 쿼리
+
+비트연산자를 사용하려면 ANY 사용 불가.   
+EXISTS를 사용해야 비트연산자 사용 가능.
+
+```sql
+SELECT
+    ID,
+    EMAIL,
+    FIRST_NAME,
+    LAST_NAME
+FROM DEVELOPERS AS D
+WHERE EXISTS (
+    SELECT 1
+    FROM SKILLCODES AS S
+    WHERE S.CATEGORY = 'Front End'
+    AND (D.SKILL_CODE & S.CODE) != 0
+)
+ORDER BY ID;
+```
+- EXISTS는 서브쿼리의 SELECT 부분이 아니라 WHERE 조건을 평가하여 TRUE 또는 FALSE를 반환함.
+- 즉, 서브쿼리 내에서 어떤 값을 SELECT하든 관계없이 해당 조건을 만족하는 행이 존재하는지 여부만 확인함.
+- 성능 최적화를 위해 일반적으로 SELECT 1을 사용하는 것이 권장됨.
+- SQL에서는 `!=` 대신 `<>`도 사용 가능
+
+
+### 시도한 코드
+
+```sql
+SELECT
+    ID,
+    EMAIL,
+    FIRST_NAME,
+    LAST_NAME
+FROM DEVELOPERS
+WHERE SKILL_CODE & ANY
+    (SELECT CODE
+    FROM SKILLCODES
+    WHERE CATEGORY = 'Front End')
+ORDER BY ID;
+```
+
+ANY를 사용할 때는 반드시 **비교 연산자(예: =, >, <, <>, >=, <=)** 와 함께 사용해야 함. 따라서 비트연산자와 사용 불가.
+
+
+## Q6. 특정 기간동안 대여 가능한 자동차들의 대여비용 구하기
+> 
+
+#### 날짜: 0303
+
+### 문제
+CAR_RENTAL_COMPANY_CAR 테이블과 CAR_RENTAL_COMPANY_RENTAL_HISTORY 테이블과 CAR_RENTAL_COMPANY_DISCOUNT_PLAN 테이블에서 자동차 종류가 '세단' 또는 'SUV' 인 자동차 중 2022년 11월 1일부터 2022년 11월 30일까지 대여 가능하고 30일간의 대여 금액이 50만원 이상 200만원 미만인 자동차에 대해서 자동차 ID, 자동차 종류, 대여 금액(컬럼명: FEE) 리스트를 출력하는 SQL문을 작성해주세요. 결과는 대여 금액을 기준으로 내림차순 정렬하고, 대여 금액이 같은 경우 자동차 종류를 기준으로 오름차순 정렬, 자동차 종류까지 같은 경우 자동차 ID를 기준으로 내림차순 정렬해주세요.
+
+### 정답 쿼리
+
+```sql
+
 ```
 
 

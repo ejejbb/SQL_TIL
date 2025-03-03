@@ -318,7 +318,7 @@ ANY를 사용할 때는 반드시 **비교 연산자(예: =, >, <, <>, >=, <=)**
 
 
 ## Q6. 특정 기간동안 대여 가능한 자동차들의 대여비용 구하기
-> 
+> CASE WHEN, MAX
 
 #### 날짜: 0303
 
@@ -327,72 +327,136 @@ CAR_RENTAL_COMPANY_CAR 테이블과 CAR_RENTAL_COMPANY_RENTAL_HISTORY 테이블�
 
 ### 정답 쿼리
 
-```sql
+엄청 오래 걸림....
+1. 한 번이라도 대여 중인 CAR_ID는 대여중인 것으로 취급되어야 할 것임. -> MAX 사용
+2. 30일 간의 대여금액이 50만원 이상 200만원 미만인 경우를 찾아야 하므로 DURATION_TYPE이 `30일 이상`에 해당하는 할인율을 적용해야 할 것임
 
+```sql
+WITH A AS (
+    SELECT CAR_ID
+    FROM CAR_RENTAL_COMPANY_RENTAL_HISTORY
+    GROUP BY CAR_ID
+    HAVING MAX(CASE 
+                 WHEN START_DATE <= '2022-11-30' AND END_DATE >= '2022-11-01' 
+                 THEN 1 ELSE 0 
+               END) = 0
+)
+SELECT 
+    C.CAR_ID, 
+    C.CAR_TYPE,
+    ROUND(30 * C.DAILY_FEE * (100 - COALESCE(P.DISCOUNT_RATE, 0))/100) AS FEE
+FROM CAR_RENTAL_COMPANY_CAR AS C
+JOIN A
+ON C.CAR_ID = A.CAR_ID
+JOIN CAR_RENTAL_COMPANY_DISCOUNT_PLAN AS P
+ON C.CAR_TYPE = P.CAR_TYPE
+AND P.DURATION_TYPE = '30일 이상'
+WHERE 
+    C.CAR_TYPE IN ('SUV', '세단')
+    AND ROUND(30 * C.DAILY_FEE * (100 - COALESCE(P.DISCOUNT_RATE, 0))/100) BETWEEN 500000 AND 2000000
+ORDER BY 
+    FEE DESC,
+    C.CAR_TYPE,
+    C.CAR_ID DESC;
 ```
 
 
-## Q7. 그룹별 조건에 맞는 식당 목록 출력하기
-> OVER
+## Q7. 언어별 개발자 분류하기
+> GROUP_CONCAT
 
-#### 날짜: 0215
+#### 날짜: 0303
 
 ### 문제
-MEMBER_PROFILE와 REST_REVIEW 테이블에서 리뷰를 가장 많이 작성한 회원의 리뷰들을 조회하는 SQL문을 작성해주세요. 회원 이름, 리뷰 텍스트, 리뷰 작성일이 출력되도록 작성해주시고, 결과는 리뷰 작성일을 기준으로 오름차순, 리뷰 작성일이 같다면 리뷰 텍스트를 기준으로 오름차순 정렬해주세요.
+DEVELOPERS 테이블에서 GRADE별 개발자의 정보를 조회하려 합니다. GRADE는 다음과 같이 정해집니다.
+A : Front End 스킬과 Python 스킬을 함께 가지고 있는 개발자
+B : C# 스킬을 가진 개발자
+C : 그 외의 Front End 개발자
+GRADE가 존재하는 개발자의 GRADE, ID, EMAIL을 조회하는 SQL 문을 작성해 주세요.
+결과는 GRADE와 ID를 기준으로 오름차순 정렬해 주세요.
 
 ### 정답 쿼리
 
-```sql
-WITH R AS (
-    SELECT
-        MEMBER_ID,
-        REVIEW_TEXT,
-        REVIEW_DATE,
-        COUNT(*) OVER (PARTITION BY MEMBER_ID) AS CNT
-    FROM REST_REVIEW
-    )
-
-SELECT
-    MEMBER_NAME,
-    REVIEW_TEXT,
-    DATE_FORMAT(REVIEW_DATE, '%Y-%m-%d') AS REVIEW_DATE
-FROM MEMBER_PROFILE AS M
-JOIN R
-USING (MEMBER_ID)
-WHERE CNT = (
-    SELECT MAX(CNT)
-    FROM R)
-ORDER BY REVIEW_DATE, REVIEW_TEXT;
-```
-
-[출력 결과]   
-![6.3.](/2025_W/img/6-3.PNG)
-
-
-## Q8. 상품을 구매한 회원 비율 구하기
-> 
-
-#### 날짜: 0215
-
-### 문제
-USER_INFO 테이블과 ONLINE_SALE 테이블에서 2021년에 가입한 전체 회원들 중 상품을 구매한 회원수와 상품을 구매한 회원의 비율(=2021년에 가입한 회원 중 상품을 구매한 회원수 / 2021년에 가입한 전체 회원 수)을 년, 월 별로 출력하는 SQL문을 작성해주세요. 상품을 구매한 회원의 비율은 소수점 두번째자리에서 반올림하고, 전체 결과는 년을 기준으로 오름차순 정렬해주시고 년이 같다면 월을 기준으로 오름차순 정렬해주세요.
-
-### 정답 쿼리
+1. GROUP_CONCAT을 이용하여 해당하는 모든 것을 리스트 형태로 나열
+2. SELECT에서 별칭으로 정의한 것을 GROUP BY에서 사용할 수 없기 때문에 HAVING에서 사용. -> 아주 기본적인 것이지만 쿼리 작성 시 자주 까먹음...
 
 ```sql
 WITH A AS (
     SELECT
-        *
-    FROM USER_INFO
-    WHERE YEAR(JOINED)=2021)
-
+        ID,
+        EMAIL,
+        GROUP_CONCAT(S.NAME) AS NAME,
+        GROUP_CONCAT(S.CATEGORY) AS CATEGORY
+    FROM DEVELOPERS AS D
+    JOIN SKILLCODES AS S
+    ON (D.SKILL_CODE & S.CODE) = S.CODE
+    GROUP BY D.ID, D.EMAIL
+)
 SELECT
-    YEAR(SALES_DATE) AS YEAR,
-    MONTH(SALES_DATE) AS MONTH,
-    COUNT(DISTINCT USER_ID) AS PURCHASED_USERS,
-    ROUND(COUNT(DISTINCT USER_ID)/(SELECT COUNT(DISTINCT USER_ID) FROM A),1) AS PUCHASED_RATIO
-FROM ONLINE_SALE AS B
-WHERE USER_ID IN (SELECT USER_ID FROM A)
-GROUP BY MONTH(SALES_DATE)
-ORDER BY YEAR, MONTH;
+    CASE
+        WHEN (CATEGORY LIKE '%Front End%') AND (NAME LIKE '%Python%') THEN 'A'
+        WHEN (NAME LIKE '%C#%') THEN 'B'
+        WHEN (CATEGORY LIKE '%Front End%') THEN 'C'
+        ELSE 'OTHER'
+    END AS GRADE,
+    ID,
+    EMAIL
+FROM A
+HAVING GRADE != 'OTHER'
+ORDER BY GRADE, ID;
 ```
+
+
+## Q8. 멸종위기의 대장균 찾기
+> WITH RECURSIVE, WHERE NOT EXISTS
+
+#### 날짜: 0303
+
+### 문제
+각 세대별 자식이 없는 개체의 수(COUNT)와 세대(GENERATION)를 출력하는 SQL문을 작성해주세요. 이때 결과는 세대에 대해 오름차순 정렬해주세요. 단, 모든 세대에는 자식이 없는 개체가 적어도 1개체는 존재합니다.
+
+### 정답 쿼리
+
+```sql
+WITH RECURSIVE C AS (
+    SELECT ID, PARENT_ID, 1 AS GENERATION
+    FROM ECOLI_DATA 
+    WHERE PARENT_ID IS NULL
+    UNION ALL
+    SELECT E.ID, E.PARENT_ID, C.GENERATION + 1
+    FROM ECOLI_DATA AS E
+    JOIN C ON E.PARENT_ID = C.ID
+)
+SELECT
+    COUNT(*) AS COUNT,
+    GENERATION
+FROM C
+WHERE NOT EXISTS
+    (SELECT 1
+    FROM ECOLI_DATA AS E
+    WHERE E.PARENT_ID = C.ID)
+GROUP BY GENERATION
+ORDER BY GENERATION;
+```
+
+
+### 문제 풀이 과정
+3번과 유사했음.   
+차이점은 `자식이 없는 개체`를 찾아야 한다는 것이었는데, 아래의 쿼리를 이용해서 찾을 수 있었음.
+```SQL
+WHERE NOT EXISTS
+    (SELECT 1
+    FROM ECOLI_DATA AS E
+    WHERE E.PARENT_ID = C.ID)
+```
+
+5번에서 사용한 WHERE EXISTS
+```SQL
+WHERE EXISTS 
+    (SELECT 1
+    FROM SKILLCODES AS S
+    WHERE S.CATEGORY = 'Front End'
+    AND (D.SKILL_CODE & S.CODE) != 0)
+```
+
+
+7주차 결론: 난이도가 높은 문제로 가니까 재귀식, 기본 SELECT, FROM, WHERE에서 서브쿼리를 많이 사용하게 된다. 앞으로는 어떻게 해야 더 성능이 좋은 쿼리를 짤 수 있을까를 고민하는 것이 관건이겠다.
